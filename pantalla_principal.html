@@ -263,8 +263,8 @@
             color: #FFFFFF; /* Icono blanco en estado activo */
         }
         
-        .sidebar-list li a.resource-link { /* Mantenemos estilo específico si es necesario */
-            /* color: #8ab4f8; */ /* Ya cubierto por el general y hover */
+        .sidebar-list li a.resource-link { 
+            /* Estilos específicos para resource-link si son diferentes de los demás 'a' de la lista */
         }
 
 
@@ -373,27 +373,28 @@
             <section class="sidebar-section">
                 <h3>Actividades y Juegos</h3>
                 <ul class="sidebar-list" id="activity-list">
-                    <li><a href="001 - Simulador.html" data-content-type="activity"> <span class="icon-placeholder">🧮</span><span class="link-text">Simulador de Interés Compuesto</span>
+                    <li><a href="001 - Simulador.html" data-content-type="activity" data-content-src="001 - Simulador.html">
+                        <span class="icon-placeholder">🧮</span><span class="link-text">Simulador de Interés Compuesto</span>
                     </a></li>
-                    <li><a href="rueda_decisiones.html" data-content-type="activity">
+                    <li><a href="rueda_decisiones.html" data-content-type="activity" data-content-src="rueda_decisiones.html">
                         <span class="icon-placeholder">🎲</span><span class="link-text">Rueda de Decisiones</span>
                     </a></li>
-                     <li><a href="planificador.html" data-content-type="activity">
+                     <li><a href="planificador.html" data-content-type="activity" data-content-src="planificador.html">
                         <span class="icon-placeholder">🎯</span><span class="link-text">Planificador 'Suficiente'</span>
                     </a></li>
-                     <li><a href="detective.html" data-content-type="activity">
+                     <li><a href="detective.html" data-content-type="activity" data-content-src="detective.html">
                         <span class="icon-placeholder">🕵️</span><span class="link-text">Detective de Riqueza</span>
                     </a></li>
-                     <li><a href="gestor_inversion.html" data-content-type="activity">
+                     <li><a href="gestor_inversion.html" data-content-type="activity" data-content-src="gestor_inversion.html">
                         <span class="icon-placeholder">📊</span><span class="link-text">Gestor de Inversión</span>
                     </a></li>
-                    <li><a href="flashcards.html" data-content-type="activity">
+                    <li><a href="flashcards.html" data-content-type="activity" data-content-src="flashcards.html">
                         <span class="icon-placeholder">🧠</span><span class="link-text">Flashcards: Conceptos Clave</span>
                     </a></li>
-                    <li><a href="verdadero_falso.html" data-content-type="activity">
+                    <li><a href="verdadero_falso.html" data-content-type="activity" data-content-src="verdadero_falso.html">
                         <span class="icon-placeholder">✔️</span><span class="link-text">Verdadero o Falso</span>
                     </a></li>
-                     <li><a href="resumen_teorico_act.html" data-content-type="activity">
+                     <li><a href="resumen_teorico_act.html" data-content-type="activity" data-content-src="resumen_teorico_act.html">
                         <span class="icon-placeholder">📝</span><span class="link-text">Resumen Teórico (Actividad)</span>
                     </a></li>
                 </ul>
@@ -401,8 +402,7 @@
             <section class="sidebar-section">
                 <h3>Lecturas Recomendadas</h3>
                 <ul class="sidebar-list">
-                    <li><a href="#" class="resource-link">
-                        <span class="icon-placeholder">📚</span><span class="link-text">Artículo: Diseño Web Moderno</span>
+                     <li><a href="#" class="resource-link"> <span class="icon-placeholder">📚</span><span class="link-text">Artículo: Diseño Web Moderno</span>
                     </a></li>
                     <li><a href="#" class="resource-link">
                         <span class="icon-placeholder">📘</span><span class="link-text">Libro: JavaScript Avanzado</span>
@@ -415,28 +415,32 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const dynamicContentArea = document.getElementById('dynamic-content-area');
-            const activityLinks = document.querySelectorAll('#activity-list a[data-content-type="activity"]');
-            const lessonLinks = document.querySelectorAll('#lesson-list a[data-content-type="lesson"], #lesson-list a[data-content-type="glossary"]'); // Incluir glosario aquí
+            // El selector allSidebarLinks ahora cubrirá todos los enlaces que deben cargar contenido dinámico
+            const allSidebarLinks = document.querySelectorAll('.sidebar-list a[data-content-src]');
 
-            // Contenido por defecto para el área central, como en la imagen
             const defaultWelcomeMessage = `
                 <div class="placeholder-title">
                     <span class="icon">🖼️</span>
                     <span>Contenido Principal</span>
                 </div>
                 <div class="placeholder-content-box">
-                    </div>
+                </div>
             `;
 
-            function setActiveLinkInList(list, activeLink) {
-                list.forEach(link => {
-                    link.classList.remove('active-lesson');
-                    link.classList.remove('active-activity');
+            function setActiveLinkInList(activeLink) {
+                // Desactivar todos los demás enlaces activos en CUALQUIER lista de sidebar
+                document.querySelectorAll('.sidebar-list a.active-lesson, .sidebar-list a.active-activity').forEach(lnk => {
+                    lnk.classList.remove('active-lesson', 'active-activity');
                 });
+
+                // Activar el enlace actual
                 if (activeLink) {
-                    // Determinar si es lección o actividad basado en su ancestro ul
-                    if (activeLink.closest('#lesson-list')) activeLink.classList.add('active-lesson');
-                    if (activeLink.closest('#activity-list')) activeLink.classList.add('active-activity');
+                    if (activeLink.closest('#lesson-list')) {
+                        activeLink.classList.add('active-lesson');
+                    } else if (activeLink.closest('#activity-list')) {
+                        activeLink.classList.add('active-activity');
+                    }
+                    // Podrías añadir más lógica si tienes otras listas o tipos
                 }
             }
             
@@ -453,7 +457,8 @@
                     if (oldScript.parentNode) {
                         oldScript.parentNode.replaceChild(newScript, oldScript);
                     } else {
-                        document.head.appendChild(newScript); // Fallback
+                        // Como fallback, añadir al head, aunque es mejor si el script se ejecuta en su contexto original
+                        document.head.appendChild(newScript).remove(); // Añadir y quitar para scripts con src, o solo añadir para inline
                     }
                 });
             }
@@ -468,60 +473,41 @@
                     })
                     .then(html => {
                         targetElement.innerHTML = html;
-                        targetElement.classList.remove('default-message'); // Quitar clase de mensaje por defecto
+                        targetElement.classList.remove('default-message'); 
                         executeScriptsInElement(targetElement);
                     })
                     .catch(error => {
                         targetElement.innerHTML = `<p style="color: #ffdddd; padding: 20px;">Error al cargar el contenido de "${url}":<br>${error.message}</p>`;
-                        targetElement.classList.add('default-message'); // Re-aplicar si hay error para mantener estilo
+                        targetElement.classList.add('default-message'); 
                         console.error('Error fetching content:', error);
                     });
             }
             
-            // Combinar todos los enlaces clicables de las sidebars para la lógica de "activo"
-            const allSidebarLinks = document.querySelectorAll('.sidebar-list a[data-content-src]');
-
             allSidebarLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
+                    // Los enlaces que son target="_blank" (como los de Recursos Adicionales)
+                    // no deberían ser prevenidos si no tienen data-content-src.
+                    // El selector allSidebarLinks ya filtra por [data-content-src],
+                    // por lo que solo los enlaces destinados a carga dinámica tendrán este listener.
                     event.preventDefault();
                     
-                    // Marcar como activo/inactivo
-                    const parentList = link.closest('.sidebar-list');
-                    const linksInSameList = parentList.querySelectorAll('a[data-content-src]');
-                    setActiveLinkInList(linksInSameList, this);
-
-                    // Desactivar enlaces en otras listas de sidebars (si es necesario)
-                    // Esta lógica es opcional, si quieres que solo un item esté activo en toda la app
-                    // document.querySelectorAll('.sidebar-list a.active-lesson, .sidebar-list a.active-activity').forEach(activeLnk => {
-                    //     if (activeLnk !== this) {
-                    //         activeLnk.classList.remove('active-lesson', 'active-activity');
-                    //     }
-                    // });
-
+                    setActiveLinkInList(this);
 
                     const contentUrl = this.getAttribute('data-content-src');
-                    const contentType = this.getAttribute('data-content-type'); // 'lesson', 'activity', 'glossary'
+                    const contentType = this.getAttribute('data-content-type');
                     
                     if (contentUrl && contentUrl !== "#") {
                          dynamicContentArea.classList.remove('default-message');
                          loadContent(contentUrl, dynamicContentArea, contentType === 'activity');
-                    } else if (contentType === 'lesson' || contentType === 'glossary') { // Placeholder para lecciones/glosario sin URL específica
-                        dynamicContentArea.classList.remove('default-message');
-                        dynamicContentArea.innerHTML = `
-                            <div style="padding:20px;">
-                                <h2>${this.querySelector('.link-text').textContent}</h2>
-                                <p>Contenido para esta sección (ej. video, texto o glosario) se mostraría aquí.</p>
-                                <p><i>URL de contenido no especificada: ${contentUrl}</i></p>
-                            </div>
-                        `;
-                    } else {
-                        dynamicContentArea.innerHTML = defaultWelcomeMessage;
+                    } else { 
+                        // Este caso es para enlaces con data-content-src="#" o vacío,
+                        // o si se quiere un comportamiento por defecto para lecciones sin contenido específico.
+                        dynamicContentArea.innerHTML = defaultWelcomeMessage; // Volver al mensaje por defecto
                         dynamicContentArea.classList.add('default-message');
                     }
                 });
             });
 
-             // Inicializar con mensaje de bienvenida/placeholder
             dynamicContentArea.innerHTML = defaultWelcomeMessage;
             dynamicContentArea.classList.add('default-message');
 
