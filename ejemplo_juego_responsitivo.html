@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego Responsivo de Ejemplo</title>
+    <style>
+        /* Estilos propios del juego, deben ser distintos al frame principal */
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif; /* Fuente distintiva */
+            background-color: #FFFACD; /* Amarillo Limón (LemonChiffon) */
+            color: #8B4513; /* Marrón (SaddleBrown) */
+            margin: 0;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90%; /* Para que ocupe espacio en el iframe/div */
+        }
+
+        .game-container {
+            background-color: #F0E68C; /* Amarillo Caqui (Khaki) */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+            width: 100%; /* Ocupa el ancho disponible del contenedor padre */
+            max-width: 450px; /* Máximo ancho para el juego en sí */
+        }
+
+        h1 {
+            color: #D2691E; /* Chocolate */
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .number-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #228B22; /* Verde Bosque (ForestGreen) */
+            background-color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 20px auto;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        button {
+            background-color: #FF6347; /* Tomate */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #E55337; /* Tomate más oscuro */
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+
+        #game-message {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #4682B4; /* Azul Acero (SteelBlue) */
+            height: 20px;
+        }
+
+        /* Responsividad interna del juego */
+        @media (max-width: 400px) {
+            .game-container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            p {
+                font-size: 1em;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            .number-display {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>¡Mini Sumador!</h1>
+        <p>Haz clic en los botones para cambiar el número.</p>
+        <div id="number-display" class="number-display">0</div>
+        <button id="btn-add">Sumar 1</button>
+        <button id="btn-subtract">Restar 1</button>
+        <button id="btn-reset">Resetear</button>
+        <p id="game-message">¡Diviértete!</p>
+    </div>
+
+    <script>
+        // Script simple para demostrar funcionalidad
+        const display = document.getElementById('number-display');
+        const addButton = document.getElementById('btn-add');
+        const subtractButton = document.getElementById('btn-subtract');
+        const resetButton = document.getElementById('btn-reset');
+        const gameMessage = document.getElementById('game-message');
+
+        let currentValue = 0;
+
+        function updateDisplay() {
+            display.textContent = currentValue;
+        }
+
+        addButton.addEventListener('click', () => {
+            currentValue++;
+            updateDisplay();
+            gameMessage.textContent = "¡Sumaste 1!";
+        });
+
+        subtractButton.addEventListener('click', () => {
+            currentValue--;
+            updateDisplay();
+            gameMessage.textContent = "¡Restaste 1!";
+        });
+        
+        resetButton.addEventListener('click', () => {
+            currentValue = 0;
+            updateDisplay();
+            gameMessage.textContent = "¡Contador reseteado!";
+        });
+
+        // Mensaje para confirmar que el JS del juego se ejecutó
+        console.log("Script de 'ejemplo_juego_responsivo.html' ejecutado correctamente.");
+        alert("¡Bienvenido al Mini Sumador! El JavaScript de este juego se ha cargado.");
+        updateDisplay(); // Inicializar display
+    </script>
+</body>
+</html>
