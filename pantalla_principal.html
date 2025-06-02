@@ -26,106 +26,198 @@
         .header {
             background-color: #142b47; /* Azul medio */
             color: #E0E7EF;
-            padding: 15px 20px;
+            padding: 10px 25px; /* Ajustado padding */
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
-            height: 60px; /* Altura fija del header */
-            flex-shrink: 0; /* Evita que el header se encoja */
+            height: 70px; /* Aumentada altura para nuevo layout de título */
+            flex-shrink: 0;
+            border-bottom: 1px solid #0D1F33; /* Línea sutil de separación */
+        }
+
+        .header .logo-container {
+            display: flex;
+            align-items: center;
         }
 
         .header .logo {
-            font-size: 1.5em;
+            font-size: 1.3em; /* Reducido para que quepa 'AP' */
             font-weight: bold;
+            background-color: #005BAA; /* Azul de acento para el fondo del logo */
+            color: #FFFFFF;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px; /* Espacio entre logo y título */
         }
 
-        .header .course-title {
-            font-size: 1.2em;
+        .header .course-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left; /* Alineación a la izquierda */
         }
+        
+        .header .course-info .module-name {
+            font-size: 0.9em;
+            color: #A0B0C0; /* Un poco más tenue */
+        }
+
+        .header .course-info .content-title {
+            font-size: 1.1em; /* Tamaño principal del título */
+            font-weight: 500; /* Un poco menos bold que el logo */
+        }
+
 
         .header nav a {
             color: #E0E7EF;
             text-decoration: none;
             margin-left: 15px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            padding: 8px 15px; /* Padding ajustado */
+            border-radius: 6px; /* Bordes más redondeados */
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 0.95em;
         }
 
         .header nav a:hover,
-        .header nav a.active {
-            background-color: #005BAA; /* Azul brillante para acentos */
+        .header nav a.active-nav {
+            background-color: #005BAA; 
+            color: #FFFFFF;
+        }
+        .header nav a .arrow-down {
+            margin-left: 5px;
+            font-size: 0.8em;
         }
 
         /* Contenedor Principal */
         .main-container {
             display: flex;
-            flex-grow: 1; /* Ocupa el espacio restante */
-            overflow: hidden; /* Evita que el contenedor principal tenga scroll */
-            height: calc(100vh - 60px); /* Altura restante después del header */
+            flex-grow: 1;
+            overflow: hidden;
+            height: calc(100vh - 70px); /* Altura restante después del header */
         }
 
         /* Columnas */
         .sidebar-left,
         .main-content-area,
         .sidebar-right {
-            padding: 20px;
-            overflow-y: auto; /* Scroll vertical independiente */
-            height: 100%; /* Ocupan toda la altura del main-container */
+            padding: 20px 25px; /* Padding ajustado */
+            overflow-y: auto;
+            height: 100%;
         }
+        /* Scrollbar styling (opcional, para un look más integrado) */
+        .sidebar-left::-webkit-scrollbar,
+        .main-content-area::-webkit-scrollbar,
+        .sidebar-right::-webkit-scrollbar,
+        .loaded-html-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .sidebar-left::-webkit-scrollbar-thumb,
+        .main-content-area::-webkit-scrollbar-thumb,
+        .sidebar-right::-webkit-scrollbar-thumb,
+        .loaded-html-content::-webkit-scrollbar-thumb {
+            background-color: #2a4464;
+            border-radius: 4px;
+        }
+        .sidebar-left::-webkit-scrollbar-track,
+        .main-content-area::-webkit-scrollbar-track,
+        .sidebar-right::-webkit-scrollbar-track,
+        .loaded-html-content::-webkit-scrollbar-track {
+            background-color: #142b47;
+        }
+
 
         .sidebar-left {
             background-color: #142b47;
-            width: 23%;
-            min-width: 250px;
-            order: 1; /* Orden por defecto */
+            width: 24%; /* Ajuste ligero de ancho */
+            min-width: 280px; /* Ajuste ligero de min-width */
+            order: 1;
+            border-right: 1px solid #0D1F33;
         }
 
         .main-content-area {
-            background-color: #0D1F33; /* Fondo oscuro para el área que rodea el contenido cargado */
+            background-color: #0D1F33; 
             flex-grow: 1;
-            min-width: 0; /* Permite que se encoja correctamente */
-            display: flex; /* Para centrar el .loaded-html-content si es necesario */
-            flex-direction: column; /* Asegura que el contenido fluya verticalmente */
-            order: 2; /* Orden por defecto */
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            order: 2;
+            padding: 15px; /* Menos padding para que el 'lienzo' destaque */
         }
 
         .loaded-html-content {
-            background-color: #F0F8FF; /* Fondo claro para el contenido cargado (AliceBlue) */
-            color: #0D1F33; /* Texto oscuro por defecto para el contenido cargado */
-            padding: 20px;
+            background-color: #F0F8FF; 
+            color: #0D1F33; 
+            padding: 25px; /* Padding interno del lienzo */
             border-radius: 8px;
             width: 100%;
-            height: 100%; /* Ocupa todo el espacio del main-content-area si no hay otro contenido */
-            overflow-y: auto; /* Scroll para el contenido cargado si es muy largo */
+            height: 100%;
+            overflow-y: auto;
         }
         
         .loaded-html-content.default-message {
             display: flex;
+            flex-direction: column; /* Para alinear título y caja negra */
+            align-items: center;
+            justify-content: center; /* Centrado vertical si no hay mucho contenido */
+            text-align: center;
+        }
+        .default-message .placeholder-title {
+             font-size: 1.3em;
+             color: #334E68; /* Un gris azulado oscuro */
+             margin-bottom: 25px;
+             display: flex;
+             align-items: center;
+        }
+        .default-message .placeholder-title .icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+            color: #59A9D9; /* Azul acento */
+        }
+        .default-message .placeholder-content-box {
+            background-color: #000000;
+            width: clamp(300px, 70%, 800px); /* Ancho responsive con min y max */
+            height: clamp(200px, 50vh, 450px); /* Altura responsive */
+            border-radius: 6px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            font-size: 1.2em;
+            color: #555; /* Texto placeholder dentro de la caja negra */
+            font-size: 0.9em;
         }
 
 
         .sidebar-right {
             background-color: #142b47;
-            width: 23%;
-            min-width: 300px;
-            order: 3; /* Orden por defecto */
+            width: 24%;
+            min-width: 300px; /* Ajustado */
+            order: 3;
+            border-left: 1px solid #0D1F33;
         }
 
         /* Estilos de elementos en Sidebars */
         .sidebar-section h3 {
-            color: #59A9D9; /* Azul brillante para títulos de sección */
+            color: #82aaff; /* Tono de azul más brillante y claro */
+            font-size: 0.9em; /* Un poco más pequeño */
+            font-weight: 600;
+            text-transform: uppercase; /* Mayúsculas */
+            letter-spacing: 0.5px; /* Espaciado ligero */
             margin-top: 0;
             margin-bottom: 15px;
-            border-bottom: 1px solid #005BAA;
-            padding-bottom: 8px;
+            padding-bottom: 10px; /* Aumentado padding-bottom */
+            border-bottom: 1px solid #2a4464; /* Borde más sutil */
+        }
+        .sidebar-section:first-child h3 { /* Para la primera sección, no tanto margen arriba */
+            margin-top: 5px;
+        }
+        .sidebar-section + .sidebar-section { /* Espacio entre secciones */
+             margin-top: 30px;
         }
 
         .sidebar-list {
@@ -134,37 +226,60 @@
         }
 
         .sidebar-list li a {
-            display: block;
-            color: #E0E7EF;
+            display: flex; /* Para alinear icono y texto */
+            align-items: center;
+            color: #C0D0E0; /* Texto ligeramente más claro/suave */
             text-decoration: none;
-            padding: 10px 5px;
-            border-radius: 4px;
-            margin-bottom: 5px;
-            transition: background-color 0.3s;
+            padding: 12px 10px; /* Padding ajustado */
+            border-radius: 6px;
+            margin-bottom: 6px; /* Espacio entre items */
+            transition: background-color 0.2s, color 0.2s;
+            font-size: 0.95em; /* Ligeramente más pequeño */
+        }
+        .sidebar-list li a .icon-placeholder {
+            margin-right: 12px; /* Espacio entre icono y texto */
+            font-size: 1.1em; /* Tamaño del icono */
+            width: 20px; /* Ancho fijo para alineación */
+            text-align: center;
+            color: #7993b4; /* Color de icono por defecto */
         }
 
-        .sidebar-list li a:hover,
+        .sidebar-list li a:hover {
+            background-color: #213a5a; /* Fondo sutil al pasar el mouse */
+            color: #FFFFFF;
+        }
+        .sidebar-list li a:hover .icon-placeholder {
+            color: #9cc2ff; /* Icono se ilumina un poco */
+        }
+
         .sidebar-list li a.active-lesson,
         .sidebar-list li a.active-activity {
-            background-color: #005BAA;
+            background-color: #005BAA; /* Color de acento para activo */
             color: #FFFFFF;
+            font-weight: 500; /* Un poco más de peso */
+        }
+        .sidebar-list li a.active-lesson .icon-placeholder,
+        .sidebar-list li a.active-activity .icon-placeholder {
+            color: #FFFFFF; /* Icono blanco en estado activo */
         }
         
-        .sidebar-list li a.resource-link {
-            color: #8ab4f8; /* Un azul más claro para enlaces de recursos */
-        }
-        .sidebar-list li a.resource-link:hover {
-            color: #FFFFFF;
-            background-color: #005BAA;
+        .sidebar-list li a.resource-link { /* Mantenemos estilo específico si es necesario */
+            /* color: #8ab4f8; */ /* Ya cubierto por el general y hover */
         }
 
 
         /* Responsividad del Layout Principal */
+        @media (max-width: 992px) { /* Punto de quiebre ajustado para 3 columnas */
+            .sidebar-left, .sidebar-right {
+                width: 30%;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-container {
                 flex-direction: column;
-                height: auto; /* Permite que el contenido determine la altura */
-                overflow-y: auto; /* Scroll para el contenedor principal en móvil */
+                height: auto; 
+                overflow-y: auto; 
             }
 
             .sidebar-left,
@@ -172,41 +287,42 @@
             .sidebar-right {
                 width: 100%;
                 min-width: unset;
-                height: auto; /* Altura automática para el contenido */
-                max-height: none; /* Sin max-height en móvil para el scroll individual */
-                overflow-y: visible; /* El scroll lo maneja .main-container */
+                height: auto; 
+                max-height: none;
+                overflow-y: visible;
+                border-left: none;
+                border-right: none;
             }
-            
-            .loaded-html-content {
-                 min-height: 300px; /* Altura mínima para el contenido cargado en móvil */
-                 overflow-y: visible;
-            }
-
-            /* Orden de apilamiento: header -> central -> izquierda -> derecha */
-            .main-content-area { order: 1; }
+            .main-content-area { order: 1; padding: 10px; }
             .sidebar-left { order: 2; }
             .sidebar-right { order: 3; }
 
             .header {
                 flex-direction: column;
                 height: auto;
-                padding: 10px;
+                padding: 15px;
+                align-items: flex-start; /* Alinear todo a la izquierda en móvil */
             }
-            .header .course-title { margin: 10px 0; }
-            .header nav { margin-top: 10px; }
-            .header nav a { margin-left: 5px; margin-right: 5px; }
+            .header .logo-container { margin-bottom: 10px; }
+            .header .course-info { text-align: left; margin-bottom: 10px;}
+            .header nav { width: 100%; display: flex; justify-content: space-around;}
+            .header nav a { margin-left: 5px; margin-right: 5px; flex-grow: 1; text-align: center;}
         }
 
     </style>
 </head>
 <body>
-
     <header class="header">
-        <div class="logo">MiPlataforma</div>
-        <div class="course-title">Módulo Actual: Introducción a la Web</div>
+        <div class="logo-container">
+            <div class="logo">AP</div>
+            <div class="course-info">
+                <span class="module-name">Módulo Actual • Nombre del Curso</span>
+                <span class="content-title">Título Principal del Contenido</span>
+            </div>
+        </div>
         <nav>
             <a href="#" id="nav-modules">Ver Módulos</a>
-            <a href="#" id="nav-next">Siguiente Contenido</a>
+            <a href="#" id="nav-next">Siguiente Contenido <span class="arrow-down">▼</span></a>
         </nav>
     </header>
 
@@ -215,24 +331,41 @@
             <section class="sidebar-section">
                 <h3>Lecciones del Módulo</h3>
                 <ul class="sidebar-list" id="lesson-list">
-                    <li><a href="#" data-content-type="lesson" data-content-src="lesson1_content.html">1. Introducción al Curso</a></li>
-                    <li><a href="#" data-content-type="lesson" data-content-src="lesson2_content.html">2. Conceptos Básicos de HTML</a></li>
-                    <li><a href="#" data-content-type="lesson" data-content-src="lesson3_content.html">3. Entendiendo CSS</a></li>
-                    <li><a href="#" data-content-type="lesson" data-content-src="lesson4_content.html">4. JavaScript Esencial</a></li>
+                    <li><a href="#" data-content-type="lesson" data-content-src="lesson1_content.html">
+                        <span class="icon-placeholder">📹</span><span class="link-text">1. Introducción (Video)</span>
+                    </a></li>
+                    <li><a href="#" data-content-type="lesson" data-content-src="lesson2_content.html">
+                        <span class="icon-placeholder">📄</span><span class="link-text">2. Resumen Teórico (HTML)</span>
+                    </a></li>
+                    <li><a href="#" data-content-type="lesson" data-content-src="lesson3_content.html">
+                        <span class="icon-placeholder">✨</span><span class="link-text">3. Ejemplos Prácticos</span>
+                    </a></li>
+                    <li><a href="#" data-content-type="lesson" data-content-src="lesson4_content.html">
+                        <span class="icon-placeholder">🛠️</span><span class="link-text">4. Herramientas y Técnicas</span>
+                    </a></li>
+                    <li><a href="#" data-content-type="lesson" data-content-src="lesson_conclusion.html">
+                        <span class="icon-placeholder">🏁</span><span class="link-text">5. Conclusiones del Módulo</span>
+                    </a></li>
                 </ul>
             </section>
-            <section class="sidebar-section" style="margin-top: 30px;">
+            <section class="sidebar-section">
                 <h3>Recursos Adicionales</h3>
                 <ul class="sidebar-list">
-                    <li><a href="docs/glosario.pdf" target="_blank" class="resource-link">Glosario del Curso (PDF)</a></li>
-                    <li><a href="https://developer.mozilla.org/" target="_blank" class="resource-link">MDN Web Docs</a></li>
+                    <li><a href="docs/guia.pdf" target="_blank" class="resource-link">
+                        <span class="icon-placeholder">📎</span><span class="link-text">Guía descargable (PDF)</span>
+                    </a></li>
+                    <li><a href="https://example.com/apa" target="_blank" class="resource-link">
+                        <span class="icon-placeholder">🔗</span><span class="link-text">Enlaces de interés APA</span>
+                    </a></li>
+                    <li><a href="#" data-content-type="glossary" data-content-src="glossary.html">
+                        <span class="icon-placeholder">📖</span><span class="link-text">Glosario de Términos</span>
+                    </a></li>
                 </ul>
             </section>
         </aside>
 
         <main class="main-content-area">
             <div class="loaded-html-content default-message" id="dynamic-content-area">
-                <p>Bienvenido/a. Selecciona una actividad o lección para comenzar.</p>
                 </div>
         </main>
 
@@ -240,15 +373,41 @@
             <section class="sidebar-section">
                 <h3>Actividades y Juegos</h3>
                 <ul class="sidebar-list" id="activity-list">
-                    <li><a href="ejemplo_juego_responsivo.html" data-content-type="activity">Juego: Suma Simple</a></li>
-                    <li><a href="simulador_fisica.html" data-content-type="activity">Simulador: Péndulo (Ejemplo)</a></li>
-                    </ul>
+                    <li><a href="ejemplo_juego_responsivo.html" data-content-type="activity">
+                        <span class="icon-placeholder">🧮</span><span class="link-text">Simulador de Interés Compuesto</span>
+                    </a></li>
+                    <li><a href="rueda_decisiones.html" data-content-type="activity">
+                        <span class="icon-placeholder">🎲</span><span class="link-text">Rueda de Decisiones</span>
+                    </a></li>
+                     <li><a href="planificador.html" data-content-type="activity">
+                        <span class="icon-placeholder">🎯</span><span class="link-text">Planificador 'Suficiente'</span>
+                    </a></li>
+                     <li><a href="detective.html" data-content-type="activity">
+                        <span class="icon-placeholder">🕵️</span><span class="link-text">Detective de Riqueza</span>
+                    </a></li>
+                     <li><a href="gestor_inversion.html" data-content-type="activity">
+                        <span class="icon-placeholder">📊</span><span class="link-text">Gestor de Inversión</span>
+                    </a></li>
+                    <li><a href="flashcards.html" data-content-type="activity">
+                        <span class="icon-placeholder">🧠</span><span class="link-text">Flashcards: Conceptos Clave</span>
+                    </a></li>
+                    <li><a href="verdadero_falso.html" data-content-type="activity">
+                        <span class="icon-placeholder">✔️</span><span class="link-text">Verdadero o Falso</span>
+                    </a></li>
+                     <li><a href="resumen_teorico_act.html" data-content-type="activity">
+                        <span class="icon-placeholder">📝</span><span class="link-text">Resumen Teórico (Actividad)</span>
+                    </a></li>
+                </ul>
             </section>
-            <section class="sidebar-section" style="margin-top: 30px;">
+            <section class="sidebar-section">
                 <h3>Lecturas Recomendadas</h3>
                 <ul class="sidebar-list">
-                    <li><a href="#" class="resource-link">Artículo: Diseño Web Moderno</a></li>
-                    <li><a href="#" class="resource-link">Libro: JavaScript Avanzado</a></li>
+                    <li><a href="#" class="resource-link">
+                        <span class="icon-placeholder">📚</span><span class="link-text">Artículo: Diseño Web Moderno</span>
+                    </a></li>
+                    <li><a href="#" class="resource-link">
+                        <span class="icon-placeholder">📘</span><span class="link-text">Libro: JavaScript Avanzado</span>
+                    </a></li>
                 </ul>
             </section>
         </aside>
@@ -258,18 +417,27 @@
         document.addEventListener('DOMContentLoaded', () => {
             const dynamicContentArea = document.getElementById('dynamic-content-area');
             const activityLinks = document.querySelectorAll('#activity-list a[data-content-type="activity"]');
-            const lessonLinks = document.querySelectorAll('#lesson-list a[data-content-type="lesson"]');
+            const lessonLinks = document.querySelectorAll('#lesson-list a[data-content-type="lesson"], #lesson-list a[data-content-type="glossary"]'); // Incluir glosario aquí
 
-            const defaultWelcomeMessage = '<p>Bienvenido/a. Selecciona una actividad o lección para comenzar.</p>';
+            // Contenido por defecto para el área central, como en la imagen
+            const defaultWelcomeMessage = `
+                <div class="placeholder-title">
+                    <span class="icon">🖼️</span>
+                    <span>Contenido Principal</span>
+                </div>
+                <div class="placeholder-content-box">
+                    </div>
+            `;
 
-            function setActiveLink(listSelector, activeLink) {
-                document.querySelectorAll(`${listSelector} a`).forEach(link => {
+            function setActiveLinkInList(list, activeLink) {
+                list.forEach(link => {
                     link.classList.remove('active-lesson');
                     link.classList.remove('active-activity');
                 });
                 if (activeLink) {
-                    if(listSelector.includes('lesson')) activeLink.classList.add('active-lesson');
-                    if(listSelector.includes('activity')) activeLink.classList.add('active-activity');
+                    // Determinar si es lección o actividad basado en su ancestro ul
+                    if (activeLink.closest('#lesson-list')) activeLink.classList.add('active-lesson');
+                    if (activeLink.closest('#activity-list')) activeLink.classList.add('active-activity');
                 }
             }
             
@@ -277,24 +445,16 @@
                 const scripts = element.querySelectorAll('script');
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement('script');
-                    // Copiar atributos (importante para src, type, etc.)
                     Array.from(oldScript.attributes).forEach(attr => {
                         newScript.setAttribute(attr.name, attr.value);
                     });
-                    // Copiar contenido para scripts inline
                     if (oldScript.innerHTML) {
                         newScript.text = oldScript.innerHTML;
                     }
-                    // Reemplazar el script viejo con el nuevo para forzar la ejecución
-                    // o añadir el nuevo y luego eliminar el viejo.
-                    // Añadir al final del head o body es una opción, pero para scripts
-                    // que manipulan su entorno inmediato, es mejor que estén cerca.
-                    // El reemplazo directo suele funcionar bien.
                     if (oldScript.parentNode) {
                         oldScript.parentNode.replaceChild(newScript, oldScript);
                     } else {
-                        // Si el script no tiene padre (raro en este contexto), adjuntar al head.
-                        document.head.appendChild(newScript);
+                        document.head.appendChild(newScript); // Fallback
                     }
                 });
             }
@@ -303,68 +463,66 @@
                 fetch(url)
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+                            throw new Error(`Error HTTP: ${response.status} - ${response.statusText} al intentar cargar ${url}`);
                         }
                         return response.text();
                     })
                     .then(html => {
                         targetElement.innerHTML = html;
-                        if (isGameOrActivity) {
-                            targetElement.classList.remove('default-message');
-                        } else {
-                            // Si es contenido de lección, no necesariamente un "lienzo" claro
-                            // Podríamos querer que mantenga el estilo del área de contenido principal
-                            // o definir un estilo específico para lecciones.
-                            // Por ahora, lo trata igual que un juego/actividad en términos de 'lienzo'.
-                             targetElement.classList.remove('default-message');
-                        }
+                        targetElement.classList.remove('default-message'); // Quitar clase de mensaje por defecto
                         executeScriptsInElement(targetElement);
                     })
                     .catch(error => {
-                        targetElement.innerHTML = `<p style="color: #ffdddd;">Error al cargar el contenido de "${url}":<br>${error.message}</p>`;
-                        targetElement.classList.add('default-message'); // Re-aplicar si hay error
+                        targetElement.innerHTML = `<p style="color: #ffdddd; padding: 20px;">Error al cargar el contenido de "${url}":<br>${error.message}</p>`;
+                        targetElement.classList.add('default-message'); // Re-aplicar si hay error para mantener estilo
                         console.error('Error fetching content:', error);
                     });
             }
+            
+            // Combinar todos los enlaces clicables de las sidebars para la lógica de "activo"
+            const allSidebarLinks = document.querySelectorAll('.sidebar-list a[data-content-src]');
 
-            activityLinks.forEach(link => {
+            allSidebarLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
                     event.preventDefault();
-                    setActiveLink('#activity-list', this);
-                    setActiveLink('#lesson-list', null); // Desactivar lecciones
-                    const contentUrl = this.getAttribute('href');
-                    dynamicContentArea.classList.remove('default-message'); // Preparar para contenido real
-                    loadContent(contentUrl, dynamicContentArea, true);
-                });
-            });
-
-            lessonLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    setActiveLink('#lesson-list', this);
-                    setActiveLink('#activity-list', null); // Desactivar actividades
-                    const contentUrl = this.getAttribute('data-content-src');
                     
-                    // Placeholder para contenido de lecciones (o cargar HTML si existe)
-                    // Aquí se podría implementar una lógica para cargar HTML de lecciones
-                    // o simplemente mostrar un mensaje/video placeholder.
+                    // Marcar como activo/inactivo
+                    const parentList = link.closest('.sidebar-list');
+                    const linksInSameList = parentList.querySelectorAll('a[data-content-src]');
+                    setActiveLinkInList(linksInSameList, this);
+
+                    // Desactivar enlaces en otras listas de sidebars (si es necesario)
+                    // Esta lógica es opcional, si quieres que solo un item esté activo en toda la app
+                    // document.querySelectorAll('.sidebar-list a.active-lesson, .sidebar-list a.active-activity').forEach(activeLnk => {
+                    //     if (activeLnk !== this) {
+                    //         activeLnk.classList.remove('active-lesson', 'active-activity');
+                    //     }
+                    // });
+
+
+                    const contentUrl = this.getAttribute('data-content-src');
+                    const contentType = this.getAttribute('data-content-type'); // 'lesson', 'activity', 'glossary'
+                    
                     if (contentUrl && contentUrl !== "#") {
                          dynamicContentArea.classList.remove('default-message');
-                         loadContent(contentUrl, dynamicContentArea, false); // false indica que no es juego/actividad
-                    } else {
-                        dynamicContentArea.classList.add('default-message');
+                         loadContent(contentUrl, dynamicContentArea, contentType === 'activity');
+                    } else if (contentType === 'lesson' || contentType === 'glossary') { // Placeholder para lecciones/glosario sin URL específica
+                        dynamicContentArea.classList.remove('default-message');
                         dynamicContentArea.innerHTML = `
-                            <h2>${this.textContent}</h2>
-                            <p>Contenido de la lección (ej. video o texto descriptivo) se mostraría aquí.</p>
-                            <iframe width="100%" height="315" src="https{://}www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0" 
-                                    title="YouTube video player" frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowfullscreen style="max-width: 560px; margin-top: 20px;"></iframe>
-                        `; // Ejemplo con un video placeholder
+                            <div style="padding:20px;">
+                                <h2>${this.querySelector('.link-text').textContent}</h2>
+                                <p>Contenido para esta sección (ej. video, texto o glosario) se mostraría aquí.</p>
+                                <p><i>URL de contenido no especificada: ${contentUrl}</i></p>
+                            </div>
+                        `;
+                    } else {
+                        dynamicContentArea.innerHTML = defaultWelcomeMessage;
+                        dynamicContentArea.classList.add('default-message');
                     }
                 });
             });
-             // Inicializar con mensaje de bienvenida
+
+             // Inicializar con mensaje de bienvenida/placeholder
             dynamicContentArea.innerHTML = defaultWelcomeMessage;
             dynamicContentArea.classList.add('default-message');
 
