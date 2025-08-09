@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rescate en la Estación Espacial — Mensajes Extraños</title>
+<meta name="description" content="Juego educativo para trabajar literalidad y flexibilidad cognitiva con adolescentes.">
+<style>
+  :root{
+    --bg:#0b1020; --card:#121733; --muted:#9fb0ff; --text:#e8ecff; --accent:#7aa2ff; --accent2:#7fffd4;
+    --border:rgba(255,255,255,.12); --shadow:0 10px 30px rgba(0,0,0,.35); --radius:16px;
+    --ok:#23b06d; --warn:#e0a21a; --bad:#d04a4a;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f5f7ff; --card:#ffffff; --text:#0b1020; --muted:#3b4a94; --border:rgba(0,0,0,.12); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+  }
+  html,body{height:100%}
+  body{
+    margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial, Noto Sans, sans-serif;
+    background: radial-gradient(1000px 700px at 20% -10%, #1a224a 0%, transparent 60%),
+                radial-gradient(1000px 700px at 120% 10%, #0e1536 0%, transparent 60%), var(--bg);
+    color:var(--text); line-height:1.45; display:grid; place-items:center; padding:16px;
+  }
+  .app{width:min(1100px,100%); display:flex; flex-direction:column; gap:16px}
+  .header{
+    display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
+    padding:12px 16px; border:1px solid var(--border); border-radius:var(--radius)
+  }
+  .title{display:flex; gap:12px; align-items:center; font-weight:800}
+  .badge{font-size:.8rem; padding:4px 8px; border:1px solid var(--border); border-radius:999px; color:var(--muted)}
+  .controls{display:flex; gap:8px; flex-wrap:wrap}
+  button, select, textarea, input{
+    background:var(--card); color:var(--text); border:1px solid var(--border);
+    border-radius:12px; padding:10px 12px; box-shadow:var(--shadow); font-weight:600
+  }
+  button{cursor:pointer; display:inline-flex; align-items:center; gap:8px}
+  .ghost{background:transparent; box-shadow:none}
+  .primary{background:linear-gradient(180deg, #4158d0, #2a3ea0); border:none}
+  .success{background:linear-gradient(180deg, #23b06d, #198c55); border:none}
+  .warn{background:linear-gradient(180deg, #d88a19, #b67114); border:none}
+  .danger{background:linear-gradient(180deg, #d04a4a, #a03030); border:none}
+  .progress{height:6px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
+  .progress>div{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:width .3s}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap}
+  .tab-btn{border:1px solid var(--border); background:rgba(255,255,255,.03)}
+  .tab-btn[aria-selected="true"]{outline:2px solid var(--accent)}
+  .card{
+    border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)), var(--card);
+    border-radius:calc(var(--radius) + 6px); padding:18px; box-shadow:var(--shadow); display:grid; gap:14px;
+  }
+  .mission{border:1px dashed var(--border); border-radius:14px; padding:14px; background:rgba(122,162,255,.08)}
+  .grid{display:grid; gap:16px; grid-template-columns:1fr}
+  @media (min-width: 800px){ .grid{ grid-template-columns: 1.2fr 1fr } }
+  .pill{font-size:.85rem; color:var(--muted); border:1px solid var(--border); padding:6px 10px; border-radius:999px; display:inline-flex; gap:8px; align-items:center}
+  .message{font-size:clamp(1.25rem,2.6vw,2rem); font-weight:800}
+  .meaning{font-size:clamp(1rem,1.6vw,1.2rem); background:rgba(127,255,212,.08); border:1px solid var(--border); border-radius:14px; padding:12px; display:none}
+  .meaning.show{display:block}
+  textarea{min-height:110px; resize:vertical; width:100%}
+  .footer{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px}
+  .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .hc body, .hc .card, .hc button, .hc select, .hc textarea{filter:contrast(1.2) saturate(1.1)}
+  .quiz{display:grid; gap:10px}
+  .opt{border:1px solid var(--border); padding:12px; border-radius:12px; cursor:pointer}
+  .opt.correct{outline:2px solid var(--ok)}
+  .opt.wrong{outline:2px solid var(--bad)}
+  .stats{display:flex; gap:10px; flex-wrap:wrap}
+  .medal{border:1px solid var(--border); padding:8px 10px; border-radius:999px; font-size:.9rem}
+  .muted{opacity:.8; font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="app" role="application" aria-label="Rescate en la Estación Espacial">
+  <div class="header">
+    <div class="title">
+      <span style="font-size:1.4rem">🛰️ Rescate en la Estación Espacial</span>
+      <span class="badge">Mensajes extraños</span>
+    </div>
+    <div class="controls">
+      <div class="tabs" role="tablist" aria-label="Modos">
+        <button class="tab-btn" id="tabExplore" role="tab" aria-selected="true">🔍 Exploración</button>
+        <button class="tab-btn" id="tabQuiz" role="tab" aria-selected="false">🎮 Juego</button>
+      </div>
+      <button id="contrastBtn" class="ghost" title="Alto contraste">🌓</button>
+    </div>
+    <div class="progress" aria-label="Progreso"><div id="bar"></div></div>
+  </div>
+
+  <!-- Sección EXPLORACIÓN -->
+  <section id="explorePanel" class="card" role="tabpanel" aria-labelledby="tabExplore">
+    <div class="mission">
+      <strong>🚀 Misión “Aurora”</strong><br>
+      Recibimos mensajes que <em>no siempre significan lo que parecen</em>. Lee, interpreta y escribe tu hipótesis.
+      <ul>
+        <li>Atajos: ← → / S mostrar / R barajar</li>
+        <li>Se guarda en este dispositivo (localStorage).</li>
+      </ul>
+    </div>
+
+    <div class="grid">
+      <section>
+        <div class="pill">Mensaje <span id="idxNow">1</span>/<span id="idxTotal">30</span></div>
+        <div id="message" class="message" aria-live="polite">La computadora está durmiendo</div>
+        <div id="meaning" class="meaning" aria-live="polite">
+          <strong>Lo que realmente significa:</strong><br><span id="meaningText">La computadora está en modo reposo.</span>
+        </div>
+      </section>
+
+      <section>
+        <div class="row">
+          <button id="prevBtn">⬅️ Anterior</button>
+          <button id="nextBtn">Siguiente ➡️</button>
+          <button id="toggleMeaning" class="primary" aria-pressed="false">Mostrar significado (S)</button>
+          <button id="shuffleBtn" class="ghost" title="Barajar (R)">🔀 Barajar</button>
+        </div>
+        <div class="row">
+          <label class="sr-only" for="jumpSelect">Ir a…</label>
+          <select id="jumpSelect" aria-label="Ir a mensaje"></select>
+          <button id="clearNotes" class="ghost">🧹 Borrar mis notas</button>
+        </div>
+        <div style="margin-top:8px">
+          <label for="userNote"><strong>💡 Tu interpretación</strong></label>
+          <textarea id="userNote" placeholder="Escribe aquí qué crees que significa este mensaje en la misión…"></textarea>
+        </div>
+        <div class="footer">
+          <button id="saveBtn" class="success">Guardar</button>
+          <button id="exportBtn" class="ghost" title="Exportar JSON">⬇️ Exportar</button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- Sección JUEGO -->
+  <section id="quizPanel" class="card" role="tabpanel" aria-labelledby="tabQuiz" hidden>
+    <div class="row" style="justify-content:space-between">
+      <div class="stats">
+        <span class="pill">Puntos: <strong id="score">0</strong></span>
+        <span class="pill">Racha: <strong id="streak">0</strong></span>
+        <span class="pill">Ronda: <strong id="round">1</strong>/30</span>
+        <span class="pill">Tiempo: <strong id="timer">20</strong>s</span>
+      </div>
+      <div class="row">
+        <input id="playerName" placeholder="Tu nombre (opcional)" />
+        <button id="restartBtn" class="warn">Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="mission">
+      <strong>🎮 Modo Juego</strong> — Elige el significado correcto. +10 pts si aciertas al primer intento.
+      +6 al segundo, +3 al tercero. Bonos: racha (x1.2 a partir de 5), tiempo restante (+1 por cada 5s).
+    </div>
+
+    <div class="pill" id="quizIndex">Mensaje 1/30</div>
+    <div id="quizMessage" class="message" aria-live="polite">Mensaje…</div>
+    <div class="quiz" id="options"></div>
+
+    <div class="footer">
+      <div class="row">
+        <button id="nextRoundBtn" class="primary" disabled>Siguiente</button>
+        <button id="showAnsBtn" class="ghost">Mostrar respuesta</button>
+        <button id="saveScoreBtn" class="success">Guardar puntuación</button>
+      </div>
+      <div id="medals" class="row"></div>
+    </div>
+    <p class="muted">Medallas: 🏁 Despegue (1er acierto) · 📡 Antena fina (racha 5) · 🧠 Maestro del contexto (25 aciertos) · 🛟 Rescate completado (100% ronda)</p>
+  </section>
+
+  <p class="muted" style="text-align:center">Listo para GitHub Pages / embebido. Sin librerías externas. Datos guardados localmente.</p>
+</div>
+
+<script>
+/* ====== Datos base ====== */
+const ITEMS = [
+  ["La computadora está durmiendo","La computadora está en modo reposo."],
+  ["La nave tiene hambre","La nave necesita combustible."],
+  ["El capitán perdió la cabeza","El capitán está actuando de forma irracional."],
+  ["El radar está ciego","El radar no está detectando nada."],
+  ["Tenemos las manos atadas","No podemos actuar por una limitación externa."],
+  ["El motor se congeló","El motor dejó de funcionar."],
+  ["La sala de control está muda","No hay comunicación desde la sala de control."],
+  ["Los datos se están derritiendo","La información se está perdiendo o corrompiendo."],
+  ["Hay un elefante en la cabina","Hay un problema evidente que todos ignoran."],
+  ["El piloto está en las nubes","El piloto está distraído."],
+  ["El sistema está ahogado","El sistema está sobrecargado."],
+  ["Los cables están hablando entre sí","Hay interferencias o conexiones cruzadas."],
+  ["El oxígeno se escapó","Hubo una fuga de oxígeno."],
+  ["El tiempo se detuvo","La misión está en pausa."],
+  ["El panel está sordo","El panel no responde a comandos."],
+  ["Tenemos un agujero negro en el presupuesto","El dinero se está gastando muy rápido."],
+  ["La misión se nos va de las manos","Estamos perdiendo el control de la situación."],
+  ["El satélite está bailando","El satélite se está moviendo de forma inestable."],
+  ["La antena perdió la voz","La antena dejó de transmitir."],
+  ["Estamos pisando terreno desconocido","Estamos en una situación nueva sin información."],
+  ["Los sensores están dormidos","Los sensores no están funcionando."],
+  ["La tripulación está hecha un hormiguero","La tripulación está muy agitada o moviéndose mucho."],
+  ["El mapa se hizo polvo","El mapa se dañó o desapareció."],
+  ["El cohete está pidiendo a gritos combustible","El cohete necesita urgentemente combustible."],
+  ["El capitán tiene los pies fríos","El capitán está dudando o tiene miedo."],
+  ["El robot está cantando","El robot está emitiendo ruidos extraños."],
+  ["El laboratorio es un caos total","El laboratorio está desordenado."],
+  ["El software se volvió loco","El software está funcionando de forma errática."],
+  ["La señal se esconde","La señal es débil o intermitente."],
+  ["El planeta nos dio la espalda","El planeta dejó de transmitir o cooperar."]
+];
+
+/* ====== Util ====== */
+const $ = q => document.querySelector(q);
+function shuffleArr(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function saveLS(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function loadLS(k,d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch{ return d; } }
+
+/* ====== Estado global ====== */
+const LS_NOTES="aurora_notas_v2";
+const LS_SCORE="aurora_scores_v1";
+let order=[...ITEMS.keys()];
+let idx=0, meaningVisible=false;
+
+/* ====== Refs Explorar ====== */
+const messageEl=$("#message"), meaningBox=$("#meaning"), meaningText=$("#meaningText");
+const bar=$("#bar"), idxNow=$("#idxNow"), idxTotal=$("#idxTotal");
+const userNote=$("#userNote"), jumpSelect=$("#jumpSelect");
+const prevBtn=$("#prevBtn"), nextBtn=$("#nextBtn"), toggleMeaning=$("#toggleMeaning");
+const shuffleBtn=$("#shuffleBtn"), clearNotes=$("#clearNotes");
+const saveBtn=$("#saveBtn"), exportBtn=$("#exportBtn");
+
+/* ====== Refs Tabs ====== */
+const tabExplore=$("#tabExplore"), tabQuiz=$("#tabQuiz");
+const explorePanel=$("#explorePanel"), quizPanel=$("#quizPanel");
+
+/* ====== Refs Juego ====== */
+const quizMsg=$("#quizMessage"), optionsBox=$("#options");
+const scoreEl=$("#score"), streakEl=$("#streak"), roundEl=$("#round"), timerEl=$("#timer");
+const quizIndex=$("#quizIndex"), nextRoundBtn=$("#nextRoundBtn"), showAnsBtn=$("#showAnsBtn");
+const playerName=$("#playerName"), restartBtn=$("#restartBtn"), saveScoreBtn=$("#saveScoreBtn"), medalsBox=$("#medals");
+
+/* ====== Inicial ====== */
+function mountJump(){
+  idxTotal.textContent=ITEMS.length;
+  jumpSelect.innerHTML="";
+  order.forEach((i,pos)=>{
+    const opt=document.createElement("option");
+    opt.value=pos; opt.textContent=`${pos+1}. ${ITEMS[i][0]}`; jumpSelect.appendChild(opt);
+  });
+}
+function render(){
+  const i=order[idx]; const [msg, mean]=ITEMS[i];
+  messageEl.textContent=msg; meaningText.textContent=mean;
+  idxNow.textContent=idx+1; jumpSelect.value=String(idx);
+  bar.style.width=((idx+1)/ITEMS.length*100).toFixed(2)+"%";
+  const notes=loadLS(LS_NOTES,{}); userNote.value=notes[i]||"";
+  meaningBox.classList.toggle("show",meaningVisible);
+  toggleMeaning.textContent=meaningVisible?"Ocultar significado (S)":"Mostrar significado (S)";
+  prevBtn.disabled=(idx===0); nextBtn.disabled=(idx===order.length-1);
+}
+
+/* ====== Acciones Explorar ====== */
+function next(){ if(idx<order.length-1){ idx++; render(); } }
+function prev(){ if(idx>0){ idx--; render(); } }
+function jump(to){ idx=Math.max(0, Math.min(order.length-1, Number(to))); render(); }
+function toggleMean(){ meaningVisible=!meaningVisible; render(); }
+function doShuffle(){ shuffleArr(order); idx=0; mountJump(); render(); }
+function saveNote(){
+  const notes=loadLS(LS_NOTES,{}); const i=order[idx]; notes[i]=(userNote.value||"").trim(); saveLS(LS_NOTES,notes);
+  flash(saveBtn,"Guardado ✓");
+}
+function clearAll(){ if(confirm("¿Borrar todas tus notas locales?")){ localStorage.removeItem(LS_NOTES); render(); } }
+function exportNotes(){
+  const notes=loadLS(LS_NOTES,{}); const data=order.map((ordIdx,pos)=>({posicion:pos+1,mensaje:ITEMS[ordIdx][0],significado:ITEMS[ordIdx][1],mi_interpretacion:notes[ordIdx]||""}));
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="interpretaciones_aurora.json"; a.click(); setTimeout(()=>URL.revokeObjectURL(url),0);
+}
+function flash(btn,txt){ const o=btn.textContent; btn.textContent=txt; setTimeout(()=>btn.textContent=o,1200); }
+
+/* ====== Tabs ====== */
+function setTab(tab){
+  const isQuiz = tab==="quiz";
+  tabExplore.setAttribute("aria-selected", String(!isQuiz));
+  tabQuiz.setAttribute("aria-selected", String(isQuiz));
+  explorePanel.hidden = isQuiz;
+  quizPanel.hidden = !isQuiz;
+}
+
+/* ====== Juego (gamificación) ====== */
+let quizOrder=[], round=1, score=0, streak=0, timer=20, timerId=null, answered=false, correctIdx=null, attempts=0, correctCount=0;
+function startQuiz(){
+  quizOrder = shuffleArr([...ITEMS.keys()]);
+  round=1; score=0; streak=0; correctCount=0;
+  updateHUD();
+  nextRoundBtn.disabled=true;
+  loadRound();
+}
+function updateHUD(){
+  scoreEl.textContent=score; streakEl.textContent=streak; roundEl.textContent=round; quizIndex.textContent=`Mensaje ${round}/30`; timerEl.textContent=timer;
+}
+function stopTimer(){ if(timerId) { clearInterval(timerId); timerId=null; } }
+function startTimer(){
+  stopTimer();
+  timer=20; updateHUD();
+  timerId=setInterval(()=>{
+    timer--; timerEl.textContent=timer;
+    if(timer<=0){ stopTimer(); reveal(false); }
+  },1000);
+}
+function loadRound(){
+  answered=false; attempts=0; optionsBox.innerHTML=""; medalsBox.innerHTML="";
+  const i = quizOrder[round-1]; const [msg,mean]=ITEMS[i]; quizMsg.textContent=msg;
+  // opciones: 1 correcta + 3 distractores
+  const pool=[...ITEMS.keys()].filter(k=>k!==i);
+  shuffleArr(pool);
+  const opts=[mean, ITEMS[pool[0]][1], ITEMS[pool[1]][1], ITEMS[pool[2]][1]];
+  shuffleArr(opts); correctIdx = opts.indexOf(mean);
+  opts.forEach((t,idxOpt)=>{
+    const div=document.createElement("div"); div.className="opt"; div.tabIndex=0; div.textContent=t;
+    div.addEventListener("click",()=>choose(idxOpt,div));
+    div.addEventListener("keydown",(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); div.click(); }});
+    optionsBox.appendChild(div);
+  });
+  startTimer();
+}
+function choose(choice, el){
+  if(answered) return;
+  attempts++;
+  const all=[...document.querySelectorAll(".opt")];
+  if(choice===correctIdx){
+    // puntaje base por intento
+    let base = attempts===1?10: attempts===2?6: attempts===3?3:1;
+    // bonus por racha (a partir de 5 aciertos)
+    let bonusStreak = streak>=5? Math.round(base*0.2):0;
+    // bonus por tiempo (1 punto por cada 5s restantes)
+    let bonusTime = Math.floor(timer/5);
+    const gained = base + bonusStreak + bonusTime;
+    score += gained; streak++; correctCount++;
+    el.classList.add("correct");
+    all.forEach((n,i)=> i!==choice && n.classList.add(i===correctIdx?"correct":""));
+    answered=true; nextRoundBtn.disabled=false; stopTimer();
+    maybeMedals();
+  }else{
+    el.classList.add("wrong");
+    streak=0; // corta racha
+  }
+  updateHUD();
+}
+function reveal(pressedBtn=true){
+  if(answered) return;
+  const all=[...document.querySelectorAll(".opt")];
+  all.forEach((n,i)=> n.classList.toggle("correct", i===correctIdx));
+  answered=true; nextRoundBtn.disabled=false; if(pressedBtn) stopTimer();
+  updateHUD();
+}
+function nextRound(){
+  if(round<30){ round++; loadRound(); nextRoundBtn.disabled=true; }
+  else {
+    stopTimer();
+    // final
+    quizMsg.textContent=`¡Ronda completa! Puntos: ${score}. Aciertos: ${correctCount}/30.`;
+    optionsBox.innerHTML="";
+    maybeMedals(true);
+  }
+}
+function maybeMedals(isEnd=false){
+  medalsBox.innerHTML="";
+  if(score>0 && correctCount>=1) addMedal("🏁 Despegue");
+  if(streak>=5) addMedal("📡 Antena fina");
+  if(correctCount>=25) addMedal("🧠 Maestro del contexto");
+  if(isEnd && correctCount===30) addMedal("🛟 Rescate completado");
+}
+function addMedal(text){
+  const b=document.createElement("span"); b.className="medal"; b.textContent=text; medalsBox.appendChild(b);
+}
+function saveScore(){
+  const name=(playerName.value||"Sin nombre").slice(0,40);
+  const rec={ name, score, correct: correctCount, date: new Date().toISOString() };
+  const all=loadLS(LS_SCORE,[]);
+  all.push(rec); saveLS(LS_SCORE, all);
+  alert("Puntuación guardada localmente.");
+  // También copiamos al portapapeles para pegar en Meet
+  const txt = `${name} — Puntos: ${score} | Aciertos: ${correctCount}/30`;
+  navigator.clipboard?.writeText(txt).catch(()=>{});
+}
+
+/* ====== Accesibilidad y atajos ====== */
+const contrastBtn=$("#contrastBtn");
+contrastBtn.addEventListener("click", ()=> document.documentElement.classList.toggle("hc"));
+document.addEventListener("keydown",(e)=>{
+  if(quizPanel.hidden){ // atajos solo en Exploración
+    if(e.key==="ArrowRight") next();
+    else if(e.key==="ArrowLeft") prev();
+    else if(e.key.toLowerCase()==="s") toggleMean();
+    else if(e.key.toLowerCase()==="r") doShuffle();
+  }
+});
+
+/* ====== Eventos ====== */
+prevBtn.addEventListener("click", prev);
+nextBtn.addEventListener("click", next);
+toggleMeaning.addEventListener("click", toggleMean);
+shuffleBtn.addEventListener("click", doShuffle);
+jumpSelect.addEventListener("change", e=> jump(e.target.value));
+saveBtn.addEventListener("click", saveNote);
+clearNotes.addEventListener("click", clearAll);
+exportBtn.addEventListener("click", exportNotes);
+
+tabExplore.addEventListener("click", ()=> setTab("explore"));
+tabQuiz.addEventListener("click", ()=> { setTab("quiz"); startQuiz(); });
+
+nextRoundBtn.addEventListener("click", nextRound);
+showAnsBtn.addEventListener("click", ()=> reveal(true));
+restartBtn.addEventListener("click", startQuiz);
+saveScoreBtn.addEventListener("click", saveScore);
+
+/* ====== Inicio ====== */
+function init(){
+  mountJump(); render(); setTab("explore");
+}
+init();
+</script>
+</body>
+</html>
