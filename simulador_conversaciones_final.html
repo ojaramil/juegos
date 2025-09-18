@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simulador de Conversaciones — Modo Claro</title>
+<style>
+  :root{
+    --bg:#ffffff;
+    --surface:#ffffff;
+    --muted:#334155;          /* gris azulado oscuro */
+    --text:#0f172a;           /* azul muy oscuro para texto */
+    --primary:#1e3a8a;        /* azul oscuro para bordes/acentos */
+    --primary-2:#1d4ed8;      /* azul vivo para botones */
+    --ok:#15803d;
+    --warn:#b45309;
+    --bad:#b91c1c;
+    --chip:#f1f5f9;
+    --bubble-user:#e0f2fe;
+    --bubble-bot:#f8fafc;
+    --shadow: 0 6px 20px rgba(2, 6, 23, .08);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  }
+  .app{max-width:1100px; margin:24px auto; padding:0 16px;}
+
+  /* ====== Bloque del LOGO arriba ====== */
+  .logo-slot{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; padding:18px;
+    background:var(--surface);
+    border:2px solid var(--primary);
+    border-radius:18px; box-shadow:var(--shadow);
+    margin-bottom:14px;
+    text-align:center;
+  }
+  .org-logo{
+    max-height:90px; width:auto;
+    display:block;
+    border:2px solid var(--primary);
+    border-radius:12px;
+    padding:8px;
+    background:#ffffff;
+  }
+  .logo-caption{
+    font-weight:800; color:var(--primary); letter-spacing:.2px;
+  }
+
+  .header{
+    display:flex; gap:16px; align-items:center; justify-content:space-between;
+    background:var(--surface);
+    border:2px solid var(--primary);
+    padding:16px; border-radius:18px; box-shadow:var(--shadow);
+  }
+  .brand{display:flex; gap:12px; align-items:center;}
+  h1{font-size:20px; margin:0; color:var(--primary)}
+  .sub{color:var(--muted); font-size:13px}
+
+  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  select, button{
+    background:#ffffff; color:var(--text);
+    border:2px solid var(--primary);
+    padding:10px 12px; border-radius:12px; font-weight:600;
+  }
+  button.primary{
+    background:linear-gradient(120deg, var(--primary-2), #60a5fa);
+    color:#ffffff; border:none; box-shadow:0 6px 14px rgba(29,78,216,.25);
+  }
+  button.ghost{background:transparent;border:2px dashed var(--primary)}
+  button:disabled{opacity:.55; cursor:not-allowed}
+
+  .layout{margin-top:16px; display:grid; grid-template-columns: 1.2fr .8fr; gap:16px;}
+  @media (max-width: 880px){ .layout{grid-template-columns:1fr} }
+
+  .card{
+    background:var(--surface);
+    border:2px solid var(--primary);
+    border-radius:18px; box-shadow:var(--shadow);
+  }
+
+  /* Chat */
+  .chat{display:flex; flex-direction:column; height:min(70vh, 680px)}
+  .chat .scroll{padding:16px; overflow:auto; flex:1; scroll-behavior:smooth;}
+  .msg{display:flex; gap:10px; margin:10px 0; max-width:85%; animation:fade-in .2s ease-out both;}
+  .msg.bot{justify-content:flex-start}
+  .msg.user{justify-content:flex-end; margin-left:auto}
+  .bubble{padding:12px 14px; border-radius:14px; position:relative; border:2px solid var(--primary);}
+  .bot .bubble{ background:var(--bubble-bot)}
+  .user .bubble{ background:var(--bubble-user)}
+  .meta{font-size:12px;color:var(--muted); margin-top:6px}
+  .feedback{display:inline-flex; gap:6px; flex-wrap:wrap; margin-top:8px}
+  .chip{
+    font-size:12px; padding:6px 8px; border-radius:999px;
+    background:var(--chip); border:2px solid var(--primary); color:var(--text);
+  }
+  .chip.ok{border-color:rgba(21,128,61,.35); color:var(--ok)}
+  .chip.warn{border-color:rgba(180,83,9,.35); color:var(--warn)}
+  .chip.bad{border-color:rgba(185,28,28,.35); color:var(--bad)}
+
+  .suggest{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 0 0;}
+  .sug{
+    background:#ffffff; color:var(--text); border:2px solid var(--primary);
+    padding:8px 10px; border-radius:999px; cursor:pointer; font-size:13px;
+  }
+  .sug:hover{background:#eff6ff; border-color:#1d4ed8}
+
+  .composer{
+    display:grid; grid-template-columns:1fr auto; gap:10px; padding:12px; border-top:2px solid var(--primary);
+  }
+  .composer input{
+    background:#ffffff; color:var(--text); border:2px solid var(--primary);
+    padding:12px 14px; border-radius:12px; outline:none;
+  }
+
+  /* Lateral (sin progreso/KPIs) */
+  .side-section{padding:14px}
+  .footer-actions{
+    display:flex; gap:8px; flex-wrap:wrap; padding:12px; border-top:2px dashed var(--primary);
+  }
+
+  .tag{font-size:11px; background:#eff6ff; border:2px solid var(--primary); color:#0f172a;
+    padding:4px 8px; border-radius:999px; display:inline-flex; gap:6px; align-items:center}
+  .tag i{width:8px;height:8px;border-radius:50%}
+  .tag.i-ok i{background:var(--ok)} .tag.i-warn i{background:var(--warn)} .tag.i-bad i{background:var(--bad)}
+
+  @keyframes fade-in{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ====== Espacio del LOGO ====== -->
+    <div class="logo-slot">
+      <!-- Cambia el src a la ruta de tu imagen. Si pones el archivo junto al HTML con nombre logo.png, se mostrará automáticamente -->
+      <img class="org-logo" src="logo-azul.png" alt="Logo Asperger para Asperger" />
+      <div class="logo-caption">Circulo de Destrezas Sociales y para la vida</div>
+    </div>
+
+    <!-- Encabezado y controles -->
+    <div class="header card">
+      <div class="brand">
+        <div>
+          <h1>Simulador de Conversaciones</h1>
+          <div class="sub">Práctica segura con retroalimentación en tiempo real • Iniciar • Mantener • Cerrar</div>
+        </div>
+      </div>
+      <div class="controls">
+        <label class="sub" for="scenario">Escenario:</label>
+        <select id="scenario" aria-label="Escoger escenario"></select>
+        <button id="startBtn" class="primary">Iniciar</button>
+        <button id="resetBtn" class="ghost">Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- Chat -->
+      <section class="card chat" aria-live="polite">
+        <div id="scroll" class="scroll"></div>
+        <div class="composer">
+          <input id="input" type="text" placeholder="Escribe tu respuesta o toca una sugerencia…" aria-label="Tu mensaje">
+          <button id="sendBtn" class="primary">Enviar</button>
+        </div>
+      </section>
+
+      <!-- Panel lateral (sin progreso/KPIs) -->
+      <aside class="card">
+        <div class="side-section">
+          <div class="sub" style="margin-bottom:8px;">Consejos rápidos</div>
+          <div class="tag i-ok"><i></i> frases de 3–25 palabras</div>
+          <div class="tag i-warn"><i></i> usa palabras del tema</div>
+          <div class="tag i-bad"><i></i> evita desvíos largos</div>
+        </div>
+        <div class="footer-actions">
+          <button id="hintBtn">Pista</button>
+          <button id="repeatBtn">Repetir paso</button>
+          <button id="endBtn">Finalizar escenario</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script>
+/* ==============================
+   UTILIDADES
+============================== */
+const $ = sel => document.querySelector(sel);
+const el = (tag, props={}, children=[])=>{
+  const node = document.createElement(tag);
+  Object.assign(node, props);
+  children.forEach(c => node.appendChild(c));
+  return node;
+};
+const sleep = ms => new Promise(res=>setTimeout(res, ms));
+
+/* ==============================
+   ESCENARIOS (10 × 10 = 100 pasos)
+============================== */
+const SCENARIOS = [
+  {
+    id:'clase',
+    title:'Clase: Presentación y pequeña charla',
+    steps:[
+      {bot:'¡Hola! Soy Alex, tu compañero de clase. ¿Cómo te llamas?', opciones:['Soy Ana, gusto en conocerte.','Prefiero no decir mi nombre por ahora.','Puedes decirme “Nico”.'], keywords:['nombre','llamo','apodo','conocerte'], tip:'Presentarte de forma sencilla funciona muy bien.'},
+      {bot:'¿Cómo va tu día hasta ahora?', opciones:['Bien, algo ocupado con tareas.','Cansado, dormí poco.','Tranquilo, gracias por preguntar.'], keywords:['bien','cansado','tranquilo','tareas','dormí'], tip:'Comparte un estado breve y honesto.'},
+      {bot:'¿Qué te parece la clase de matemáticas?', opciones:['Interesante pero difícil a veces.','Me cuesta; el profesor va rápido.','Me gusta resolver problemas.'], keywords:['interesante','difícil','rápido','profesor','problemas'], tip:'Puedes decir algo que te gusta y algo que mejorarías.'},
+      {bot:'¿Sueles estudiar en grupo o solo?', opciones:['Prefiero estudiar solo.','En grupo, me ayuda a entender.','Depende del tema.'], keywords:['solo','grupo','depende'], tip:'Ambas opciones son válidas; explica por qué.'},
+      {bot:'Tenemos un ejercicio para mañana. ¿Ya lo empezaste?', opciones:['Sí, hice la mitad.','No aún, planeo empezar hoy.','Tengo dudas y pediré ayuda.'], keywords:['sí','mitad','no','empezar','dudas','ayuda'], tip:'Indica tu plan o avance.'},
+      {bot:'¿Qué estrategia te funciona para problemas difíciles?', opciones:['Dividir el problema en partes.','Repasar ejemplos similares.','Pedir una pista al profe.'], keywords:['dividir','ejemplos','pista','profe'], tip:'Ofrece una táctica concreta.'},
+      {bot:'¿Quieres formar equipo para el proyecto?', opciones:['Sí, me gustaría.','Tal vez, según el horario.','Prefiero trabajar solo esta vez.'], keywords:['equipo','horario','solo'], tip:'Contesta claro y cortés.'},
+      {bot:'¿Qué otros cursos te gustan?', opciones:['Historia y literatura.','Física, me encanta.','Arte y música.'], keywords:['historia','literatura','física','arte','música'], tip:'Menciona 1–2 intereses.'},
+      {bot:'Genial. ¿Te va si practicamos 20 min después de clase?', opciones:['Perfecto, nos vemos a las 3.','Hoy no puedo, ¿mañana?','Sí, pero solo 10 min.'], keywords:['perfecto','hora','mañana','puedo','min'], tip:'Negocia tiempo y hora.'},
+      {bot:'¡Gracias por hablar! Tengo que irme. ¿Deseas cerrar la conversación?', opciones:['Gracias, hablamos luego.','Fue un gusto, ¡hasta luego!','Claro, que tengas buen día.'], keywords:['gracias','gusto','hasta','día'], tip:'Cierre breve y amable.', end:true}
+    ]
+  },
+  {
+    id:'trabajo',
+    title:'Trabajo: Reunión breve con colega',
+    steps:[
+      {bot:'Hola, soy Sam de soporte. ¿Tienes un minuto?', opciones:['Sí, dime.','Ahora no, ¿podemos en 15?','Depende del tema.'], keywords:['sí','ahora','15','tema'], tip:'Disponibilidad clara ayuda.'},
+      {bot:'Tenemos un bug en el informe. ¿Lo viste?', opciones:['Sí, lo noté hoy.','No, ¿qué ocurre?','Sospecho que es por la última actualización.'], keywords:['bug','informe','actualización','noté'], tip:'Nombra el problema.'},
+      {bot:'¿Puedes revisarlo antes de las 4?', opciones:['Sí, lo reviso ahora.','Puedo a las 3:30.','Necesito hasta mañana.'], keywords:['revisar','hora','mañana'], tip:'Compromiso realista.'},
+      {bot:'Si necesitas datos, te paso acceso.', opciones:['Por favor, compártelos.','Ya tengo acceso.','Me sirve un ejemplo de error.'], keywords:['acceso','compartir','ejemplo','error'], tip:'Pide lo que necesitas.'},
+      {bot:'¿Cómo te gustaría que registremos el avance?', opciones:['En el tablero Kanban.','Con un comentario en Jira.','Un mensaje diario está bien.'], keywords:['kanban','jira','mensaje','diario'], tip:'Elige un canal.'},
+      {bot:'Detecté que falla con archivos grandes.', opciones:['Haré una prueba con 200MB.','Entonces es límite de memoria.','Tal vez es el parser.'], keywords:['prueba','MB','memoria','parser'], tip:'Propón hipótesis o pruebas.'},
+      {bot:'¿Prefieres que hagamos pairing?', opciones:['Sí, 30 min.','No por ahora.','Podemos mañana.'], keywords:['pairing','30','mañana','no'], tip:'Coordina.'},
+      {bot:'Te aviso si hay cambios urgentes.', opciones:['Perfecto, quedo atento.','Gracias, me mencionas.','Ok, monitoreo el canal.'], keywords:['perfecto','atento','gracias','monitoreo'], tip:'Confirma recepción.'},
+      {bot:'¿Algo más que deba saber?', opciones:['No, con eso basta.','Solo el deadline del cliente.','Revisa permisos de escritura.'], keywords:['deadline','cliente','permisos','basta'], tip:'Cierra pendientes.'},
+      {bot:'Listo, gracias por tu tiempo.', opciones:['Gracias a ti, seguimos.','¡Éxitos!','Hasta luego.'], keywords:['gracias','éxitos','luego'], tip:'Cierre cordial.', end:true}
+    ]
+  },
+  {
+    id:'restaurante',
+    title:'Restaurante: hacer un pedido',
+    steps:[
+      {bot:'¡Bienvenido! ¿Mesa para cuántas personas?', opciones:['Para una, por favor.','Para dos.','Somos cuatro.'], keywords:['una','dos','cuatro','mesa'], tip:'Responde número claro.'},
+      {bot:'¿Prefieres interior o terraza?', opciones:['Terraza, si hay.','Interior está bien.','Donde esté más tranquilo.'], keywords:['terraza','interior','tranquilo'], tip:'Indica preferencia.'},
+      {bot:'¿Te ofrezco algo de beber?', opciones:['Agua con gas.','Jugo de naranja.','Solo agua natural.'], keywords:['agua','jugo','beber','naranja'], tip:'Pide 1 bebida.'},
+      {bot:'Tenemos menú del día y a la carta.', opciones:['¿Qué incluye el menú?','Veré la carta.','¿Opciones sin gluten?'], keywords:['menú','carta','gluten'], tip:'Pregunta para decidir.'},
+      {bot:'El menú incluye sopa y pasta.', opciones:['Me quedo con el menú.','Prefiero la pasta sola.','¿Puedo cambiar la sopa?'], keywords:['menú','pasta','sopa','cambiar'], tip:'Confirma o negocia.'},
+      {bot:'¿Punto de cocción?', opciones:['Al dente.','Suave.','Como lo recomienden.'], keywords:['al dente','suave','recomienden'], tip:'Da una especificación.'},
+      {bot:'¿Alguna alergia o restricción?', opciones:['Sin lácteos, por favor.','Alergia al maní.','Ninguna.'], keywords:['sin','lácteos','maní','ninguna'], tip:'Sé claro y directo.'},
+      {bot:'¿Deseas postre?', opciones:['Sí, flan.','No por ahora.','¿Qué postres tienen?'], keywords:['postre','flan','no','qué'], tip:'Acepta o pregunta.'},
+      {bot:'¿La cuenta será separada?', opciones:['Junta, gracias.','Separada.','Voy a pagar yo.'], keywords:['cuenta','separada','junta','pagar'], tip:'Indica tipo de pago.'},
+      {bot:'Gracias por tu visita.', opciones:['Gracias, todo muy rico.','Nos vemos pronto.','Hasta luego.'], keywords:['gracias','rico','pronto','luego'], tip:'Cierre amable.', end:true}
+    ]
+  },
+  {
+    id:'hobby',
+    title:'Club / Hobby: conversación en actividad',
+    steps:[
+      {bot:'¡Hola! ¿Es tu primera vez en el club?', opciones:['Sí, acabo de llegar.','No, ya vine antes.','Vengo a probar.'], keywords:['primera','llegar','antes','probar'], tip:'Da contexto simple.'},
+      {bot:'¿Qué te interesa aprender hoy?', opciones:['Fundamentos básicos.','Técnicas intermedias.','Conocer a la comunidad.'], keywords:['fundamentos','técnicas','comunidad'], tip:'Elige un objetivo.'},
+      {bot:'Trajimos material extra.', opciones:['Genial, ¿puedo usar uno?','Yo traje el mío.','¿Hay para zurdos?'], keywords:['material','usar','traje','zurdos'], tip:'Pide recursos si necesitas.'},
+      {bot:'Solemos dividir por niveles.', opciones:['Voy a nivel inicial.','Creo que soy intermedio.','Prefiero observar primero.'], keywords:['inicial','intermedio','observar'], tip:'Autoselección honesta.'},
+      {bot:'¿Quieres un compañero de práctica?', opciones:['Sí, por favor.','Prefiero practicar solo.','Tal vez más tarde.'], keywords:['compañero','solo','más tarde'], tip:'Expresa preferencia.'},
+      {bot:'Haremos un descanso a mitad.', opciones:['Perfecto, aprovecho para hidratarme.','Bien, necesito estirar.','Avisen cuando sea.'], keywords:['descanso','hidratar','estirar','avisen'], tip:'Plan para el break.'},
+      {bot:'¿Usamos música o silencio?', opciones:['Música suave.','Silencio me concentra.','Me es indiferente.'], keywords:['música','silencio','indiferente'], tip:'Acuerdo grupal.'},
+      {bot:'¿Te gustaría compartir un truco?', opciones:['Sí, uno corto.','No por ahora.','Puedo mostrar al final.'], keywords:['compartir','truco','final','no'], tip:'Ofrece o declina respetuosamente.'},
+      {bot:'¿Cómo te sentiste hoy?', opciones:['Motivado, aprendí algo nuevo.','Cansado pero satisfecho.','Me costó, pediré consejos.'], keywords:['motivado','aprendí','cansado','satisfecho','consejos'], tip:'Habla de sensaciones.'},
+      {bot:'Gracias por venir, nos despedimos.', opciones:['¡Gracias! Hasta la próxima.','Me encantó, volveré.','Buen día para todos.'], keywords:['gracias','próxima','volveré','buen día'], tip:'Despedida positiva.', end:true}
+    ]
+  },
+  {
+    id:'transporte',
+    title:'Transporte público: pedir información',
+    steps:[
+      {bot:'Hola, ¿buscas alguna línea en particular?', opciones:['Sí, la 32 hacia el centro.','¿Cuál va al museo?','No estoy seguro.'], keywords:['32','centro','museo','línea'], tip:'Di destino o número.'},
+      {bot:'La parada está a dos cuadras.', opciones:['¿En qué dirección?','Perfecto, gracias.','¿Hay señalización?'], keywords:['dirección','señal','gracias','parada'], tip:'Pide orientación extra si lo necesitas.'},
+      {bot:'Sale cada 10 minutos.', opciones:['Genial, ¿la app muestra horarios?','Entonces esperaré aquí.','¿Hay retrasos hoy?'], keywords:['horarios','esperar','retrasos','app'], tip:'Confirma tiempo de espera.'},
+      {bot:'Puedes pagar con tarjeta o efectivo.', opciones:['Uso tarjeta contactless.','Pago en efectivo.','¿Dónde recargo?'], keywords:['tarjeta','efectivo','recargo'], tip:'Indica método de pago.'},
+      {bot:'El viaje dura 15 a 20 minutos.', opciones:['Suficiente para llegar a mi cita.','Entonces salgo ya.','¿Hay asientos prioritarios?'], keywords:['minutos','cita','salgo','asientos'], tip:'Planea en función del tiempo.'},
+      {bot:'Recuerda validar al subir.', opciones:['Gracias por el recordatorio.','Lo haré.','¿Se valida al bajar también?'], keywords:['validar','subir','bajar','gracias'], tip:'Aclara la regla.'},
+      {bot:'Evita las horas pico si puedes.', opciones:['Buena idea, iré antes.','No puedo, tengo horario fijo.','¿Cuáles son las horas pico?'], keywords:['pico','horario','antes','cuáles'], tip:'Ajusta tu plan.'},
+      {bot:'El chofer anuncia las paradas.', opciones:['Perfecto, estaré atento.','¿Se ilumina un cartel?','¿Puedes avisarme del centro?'], keywords:['paradas','cartel','avísame','atento'], tip:'Cómo sabrás cuándo bajar.'},
+      {bot:'¿Necesitas algo más?', opciones:['No, muchas gracias.','Solo la ubicación del museo.','¿Un baño cerca?'], keywords:['gracias','ubicación','baño','no'], tip:'Últimas dudas.'},
+      {bot:'Buen viaje.', opciones:['Gracias, que tengas buen día.','Hasta luego.','Muy amable.'], keywords:['gracias','día','luego','amable'], tip:'Despedida.', end:true}
+    ]
+  },
+  {
+    id:'medico',
+    title:'Consulta médica: recepción',
+    steps:[
+      {bot:'Buen día, recepción. ¿Nombre y motivo?', opciones:['Soy Laura, control anual.','Me llamo Diego, dolor de cabeza.','Prefiero dar datos en privado.'], keywords:['nombre','control','dolor','privado'], tip:'Entrega lo mínimo necesario.'},
+      {bot:'¿Tienes cita programada?', opciones:['Sí, a las 10:30.','No, ¿hay cupo hoy?','Reagendé por la app.'], keywords:['cita','10:30','cupo','reagendé','app'], tip:'Indica hora o estado.'},
+      {bot:'Necesito tu documento.', opciones:['Aquí está.','Lo tengo digital.','Lo olvidé, ¿sirve otra identificación?'], keywords:['documento','digital','olvidé','identificación'], tip:'Propón alternativa si falta.'},
+      {bot:'¿Alergias o medicación actual?', opciones:['Alergia a penicilina.','Tomo ibuprofeno.','Ninguna.'], keywords:['alergia','penicilina','ibuprofeno','ninguna'], tip:'Sé específico.'},
+      {bot:'La espera es de 20 minutos.', opciones:['De acuerdo, me quedo aquí.','¿Puedo salir y volver?','¿Hay agua?'], keywords:['espera','20','salir','agua'], tip:'Gestiona la espera.'},
+      {bot:'Completa este formulario.', opciones:['Lo haré ahora.','¿Alguna duda frecuente?','¿Puedo hacerlo en el móvil?'], keywords:['formulario','móvil','ahora','duda'], tip:'Pregunta si algo no entiendes.'},
+      {bot:'El doctor llamará por tu nombre.', opciones:['Perfecto.','¿Pueden avisar por mensaje?','¿Usan pantalla?'], keywords:['nombre','mensaje','pantalla','perfecto'], tip:'Confirma el mecanismo.'},
+      {bot:'¿Necesitas comprobante para el trabajo?', opciones:['Sí, por favor.','No es necesario.','Lo pido al salir.'], keywords:['comprobante','trabajo','salir','sí'], tip:'Anticípalo.'},
+      {bot:'¿Alguna molestia ahora?', opciones:['Solo un poco de náusea.','Dolor leve en la frente.','No, estoy bien.'], keywords:['náusea','dolor','frente','bien'], tip:'Describe intensidad simple.'},
+      {bot:'Gracias, te avisamos.', opciones:['Gracias a ustedes.','Hasta pronto.','Quedo atento.'], keywords:['gracias','pronto','atento'], tip:'Cierre amable.', end:true}
+    ]
+  },
+  {
+    id:'fiesta',
+    title:'Fiesta / evento social: conocer a alguien',
+    steps:[
+      {bot:'Hola, soy Val. ¿Cómo te llamas?', opciones:['Soy Tomás.','Puedes decirme Tere.','Prefiero no decir.'], keywords:['soy','llamo','apodo','prefiero'], tip:'Presentación breve.'},
+      {bot:'¿Con quién viniste?', opciones:['Con un amigo.','Vine solo.','Con mi pareja.'], keywords:['amigo','solo','pareja'], tip:'Una palabra basta.'},
+      {bot:'¿Te gusta la música de hoy?', opciones:['Sí, está buena.','No es mi estilo.','Me gusta, pero un poco alta.'], keywords:['música','estilo','alta','gusta'], tip:'Opina con respeto.'},
+      {bot:'¿Qué bebidas prefieres?', opciones:['Agua/limonada.','Refresco.','Algo sin alcohol.'], keywords:['agua','limonada','refresco','sin alcohol'], tip:'Comunica límites.'},
+      {bot:'¿Tienes hobbies?', opciones:['Videojuegos y lectura.','Bailar.','Cocinar.'], keywords:['videojuegos','lectura','bailar','cocinar'], tip:'Menciona 1–2.'},
+      {bot:'¿Qué te trae a este evento?', opciones:['Cumple de un amigo.','Trabajo en la organización.','Vivo cerca.'], keywords:['cumple','organización','cerca'], tip:'Cuenta el motivo.'},
+      {bot:'¿Quieres unirte a nuestro grupo?', opciones:['Sí, gracias.','Quizá luego.','Prefiero conversar aquí.'], keywords:['unir','grupo','luego','prefiero'], tip:'Acepta o declina.'},
+      {bot:'¿Te molesta el ruido?', opciones:['Un poco, busquemos un lugar tranquilo.','Estoy bien.','Sí, mejor afuera.'], keywords:['ruido','tranquilo','afuera','bien'], tip:'Propón ajuste.'},
+      {bot:'¿Intercambiamos contacto?', opciones:['Claro, Instagram.','Mejor por WhatsApp.','Prefiero no compartir.'], keywords:['instagram','whatsapp','no'], tip:'Límite saludable.'},
+      {bot:'¡Hablamos luego!', opciones:['Gracias por la charla.','Hasta luego.','Fue un gusto.'], keywords:['gracias','luego','gusto'], tip:'Cierre positivo.', end:true}
+    ]
+  },
+  {
+    id:'soporte',
+    title:'Soporte técnico: problema con Wi-Fi',
+    steps:[
+      {bot:'Hola, ¿qué problema tienes con el Wi-Fi?', opciones:['No conecta ningún dispositivo.','Se desconecta cada rato.','La velocidad es muy baja.'], keywords:['conecta','desconecta','velocidad','wifi','wi-fi'], tip:'Describe el síntoma.'},
+      {bot:'¿Desde cuándo sucede?', opciones:['Desde hoy.','Ayer por la noche.','Una semana.'], keywords:['hoy','ayer','semana','desde'], tip:'Indica tiempo.'},
+      {bot:'¿Encendiste y apagaste el router?', opciones:['Sí, lo reinicié.','No aún.','Lo apagué 10 segundos.'], keywords:['reinicié','apagué','router','10'], tip:'Acción básica de prueba.'},
+      {bot:'¿Con cable funciona?', opciones:['Sí, por cable va bien.','No tengo cable.','También falla por cable.'], keywords:['cable','funciona','falla'], tip:'Aísla el problema.'},
+      {bot:'Veo interferencia en tu zona.', opciones:['Cambiaré el canal.','¿Puedes hacerlo por mí?','¿Otra solución?'], keywords:['canal','solución','hacerlo'], tip:'Propón un paso.'},
+      {bot:'¿Qué velocidad esperas?', opciones:['Al menos 50 Mbps.','Tengo plan de 100.','No lo sé.'], keywords:['mbps','plan','100','50'], tip:'Da referencia.'},
+      {bot:'¿Podemos agendar visita técnica?', opciones:['Sí, mañana por la tarde.','El sábado por la mañana.','Prefiero remota.'], keywords:['mañana','sábado','tarde','remota'], tip:'Disponibilidad clara.'},
+      {bot:'Necesito un número de contacto.', opciones:['Te paso mi celular.','Prefiero email.','Envíame un enlace de agenda.'], keywords:['celular','email','agenda','número'], tip:'Escoge canal cómodo.'},
+      {bot:'Haré seguimiento en 24h.', opciones:['Gracias, quedo atento.','Perfecto, me avisas.','OK.'], keywords:['gracias','atento','avisas','ok'], tip:'Confirma.'},
+      {bot:'¿Algo más?', opciones:['No, gracias.','Eso es todo.','Buen día.'], keywords:['no','gracias','todo','día'], tip:'Despedida.', end:true}
+    ]
+  },
+  {
+    id:'super',
+    title:'Supermercado: buscar un producto',
+    steps:[
+      {bot:'Hola, ¿buscas algo en particular?', opciones:['Sal sin sodio.','Leche deslactosada.','Harina integral.'], keywords:['sal','sodio','leche','deslactosada','harina','integral'], tip:'Nombra el producto.'},
+      {bot:'Está en el pasillo 4.', opciones:['¿Cerca de los condimentos?','Gracias.','¿Hay marca económica?'], keywords:['pasillo','condimentos','marca','económica'], tip:'Pide precisión o agradece.'},
+      {bot:'¿Prefieres marca X o Y?', opciones:['La más económica.','La que no tenga azúcar.','Recomiéndame una.'], keywords:['económica','azúcar','recomienda'], tip:'Criterio simple.'},
+      {bot:'Tenemos 2×1 en la segunda unidad.', opciones:['Entonces llevo dos.','Solo necesito una.','¿Vence pronto?'], keywords:['dos','una','vence','2x1'], tip:'Decide oferta.'},
+      {bot:'¿Algo más de tu lista?', opciones:['Tomates y cebollas.','Solo eso.','Papel de cocina.'], keywords:['tomates','cebollas','papel','lista'], tip:'Añade o termina.'},
+      {bot:'¿Bolsas reutilizables?', opciones:['Sí, una.','No, gracias.','Traje mis bolsas.'], keywords:['bolsas','reutilizables','traje'], tip:'Opciones ecológicas.'},
+      {bot:'¿Pago en caja rápida?', opciones:['Sí, pocas cosas.','Caja normal.','Autopago está bien.'], keywords:['caja','rápida','autopago','normal'], tip:'Elige caja.'},
+      {bot:'¿Necesitas factura?', opciones:['Sí, a mi NIT.','No, gracias.','Solo ticket.'], keywords:['factura','NIT','ticket','no'], tip:'Documento de compra.'},
+      {bot:'¿Deseas redondear para donación?', opciones:['Sí, claro.','No por hoy.','¿A qué causa?'], keywords:['donación','sí','no','causa'], tip:'Responde breve.'},
+      {bot:'Gracias por tu compra.', opciones:['Gracias a ustedes.','Hasta luego.','Buen día.'], keywords:['gracias','luego','día'], tip:'Cierre.', end:true}
+    ]
+  },
+  {
+    id:'entrevista',
+    title:'Entrevista de prácticas (light)',
+    steps:[
+      {bot:'Bienvenido, ¿podrías presentarte?', opciones:['Soy estudiante de informática.','Me llamo Sara, me interesa el área web.','Prefiero una presentación breve.'], keywords:['estudiante','informática','web','presentación'], tip:'1–2 frases es suficiente.'},
+      {bot:'¿Qué proyecto te enorgullece?', opciones:['Una app de notas.','Un sitio accesible.','Un bot sencillo.'], keywords:['app','notas','accesible','bot'], tip:'Nombra 1 ejemplo.'},
+      {bot:'¿Qué lenguaje manejas mejor?', opciones:['JavaScript.','Python.','Java.'], keywords:['javascript','python','java','lenguaje'], tip:'Elige uno principal.'},
+      {bot:'¿Prefieres frontend o backend?', opciones:['Frontend.','Backend.','Full-stack.'], keywords:['frontend','backend','full'], tip:'Preferencia clara.'},
+      {bot:'¿Cómo trabajas en equipo?', opciones:['Uso tableros y dailies.','Comunico avances y bloqueos.','Pido feedback frecuente.'], keywords:['tableros','dailies','bloqueos','feedback'], tip:'Menciona hábitos.'},
+      {bot:'¿Cómo aprendes algo nuevo?', opciones:['Documentación oficial.','Cursos cortos.','Proyectos pequeños.'], keywords:['documentación','cursos','proyectos'], tip:'Proceso de aprendizaje.'},
+      {bot:'¿Disponibilidad horaria?', opciones:['Mañanas.','Tardes.','Part-time flexible.'], keywords:['mañanas','tardes','flexible'], tip:'Sé concreto.'},
+      {bot:'¿Expectativas de la práctica?', opciones:['Aprender buenas prácticas.','Mejorar en equipo.','Contribuir a un producto real.'], keywords:['buenas prácticas','equipo','producto'], tip:'Metas realistas.'},
+      {bot:'¿Preguntas para nosotros?', opciones:['Sí, sobre el mentor.','Sobre el stack.','Sobre el proceso de feedback.'], keywords:['mentor','stack','feedback','preguntas'], tip:'Haz 1 pregunta.'},
+      {bot:'Gracias por tu tiempo.', opciones:['Gracias a ustedes.','Quedo atento.','Hasta pronto.'], keywords:['gracias','atento','pronto'], tip:'Cierre.', end:true}
+    ]
+  },
+  {
+    id:'telefono',
+    title:'Llamada breve / coordinación',
+    steps:[
+      {bot:'Hola, ¿puedes hablar ahora?', opciones:['Sí, 5 minutos.','En 10 minutos.','No puedo, agenda por mensaje.'], keywords:['sí','5','10','agenda','mensaje'], tip:'Disponibilidad concreta.'},
+      {bot:'Necesito confirmar una dirección.', opciones:['Es Calle 10 #22.','Te la envío por chat.','No la recuerdo.'], keywords:['dirección','calle','enviar','chat'], tip:'Entrega dato o plan.'},
+      {bot:'¿Qué horario te conviene?', opciones:['Mañana a las 9.','Hoy a las 17.','Cualquier hora.'], keywords:['mañana','9','17','hora'], tip:'Propuesta específica.'},
+      {bot:'¿Prefieres llamada o videollamada?', opciones:['Videollamada.','Llamada.','Me da igual.'], keywords:['video','llamada','igual'], tip:'Elige canal.'},
+      {bot:'Durará 20 minutos.', opciones:['Perfecto.','¿Podemos hacerlo en 15?','Está bien.'], keywords:['20','15','perfecto','bien'], tip:'Negocia duración.'},
+      {bot:'Enviaré invitación.', opciones:['Gracias.','Recibido.','¿Puedes incluir agenda?'], keywords:['invitación','agenda','gracias','recibido'], tip:'Confirma y pide agenda.'},
+      {bot:'¿Algún material previo?', opciones:['Sí, te mando un PDF.','No es necesario.','Solo un resumen.'], keywords:['pdf','resumen','material','no'], tip:'Ahorra tiempo.'},
+      {bot:'Si surge un imprevisto, avisa.', opciones:['De acuerdo.','Aviso por chat.','Reagendamos si pasa.'], keywords:['aviso','imprevisto','reagendar'], tip:'Plan B claro.'},
+      {bot:'¿Algo más que cerrar?', opciones:['Nada más.','Solo confirmar asistentes.','Todo listo.'], keywords:['nada','asistentes','listo'], tip:'Checklist final.'},
+      {bot:'¡Gracias! Hablamos luego.', opciones:['Gracias.','Hasta luego.','Nos vemos.'], keywords:['gracias','luego','vemos'], tip:'Cierre.', end:true}
+    ]
+  }
+];
+
+// Verificación (≥100 pasos)
+const TOTAL_STEPS = SCENARIOS.reduce((acc,s)=>acc + s.steps.length, 0);
+
+/* ==============================
+   ESTADO
+============================== */
+let state = {
+  scenarioIndex: 0,
+  stepIndex: -1,
+  history: [],
+  started: false
+};
+
+/* ==============================
+   RENDER
+============================== */
+function addMsg(role, text, feedback=[]) {
+  const wrap = el('div', {className:`msg ${role}`});
+  const bubble = el('div', {className:'bubble'});
+  bubble.textContent = text;
+  wrap.appendChild(bubble);
+
+  if (feedback.length){
+    const fb = el('div', {className:'feedback'});
+    feedback.forEach(f=>{
+      const chip = el('span', {className:`chip ${f.type}`});
+      chip.textContent = f.text;
+      fb.appendChild(chip);
+    });
+    wrap.appendChild(fb);
+  }
+  $('#scroll').appendChild(wrap);
+  $('#scroll').scrollTop = $('#scroll').scrollHeight;
+}
+
+function renderBotStep(step){
+  addMsg('bot', step.bot);
+  renderSuggestions(step);
+}
+
+function renderSuggestions(step){
+  const cont = el('div', {className:'suggest'});
+  step.opciones.forEach(opt=>{
+    const b = el('button', {className:'sug', type:'button'});
+    b.textContent = opt;
+    b.addEventListener('click', ()=> {
+      $('#input').value = opt;
+      sendUser();
+    });
+    cont.appendChild(b);
+  });
+  const tip = el('div', {className:'meta'});
+  tip.textContent = 'Sugerencias • ' + (step.tip || '');
+  cont.appendChild(tip);
+
+  const last = Array.from($('#scroll').querySelectorAll('.msg.bot')).pop();
+  last.appendChild(cont);
+}
+
+/* ==============================
+   EVALUACIÓN EN TIEMPO REAL
+============================== */
+const STOPWORDS = new Set('de la los las un una y o u en es a con por para que como muy más menos pero si no del al lo le les me te se'.split(' '));
+
+function tokenize(str){
+  return str.toLowerCase()
+    .replace(/[áàä]/g,'a').replace(/[éèë]/g,'e').replace(/[íïì]/g,'i').replace(/[óòö]/g,'o').replace(/[úùü]/g,'u')
+    .replace(/[^a-z0-9ñ ]+/g,' ')
+    .split(/\s+/).filter(w=>w && !STOPWORDS.has(w));
+}
+
+function uniqueKeywords(step){
+  const kw = new Set(step.keywords.map(k=>k.toLowerCase()));
+  step.opciones.forEach(o=>{
+    tokenize(o).forEach(t=>{ if(t.length>2) kw.add(t) });
+  });
+  return Array.from(kw);
+}
+
+function evaluateMessage(msg, step){
+  const words = tokenize(msg);
+  const len = words.length;
+
+  let lengthTag = null;
+  if (len <= 2) lengthTag = {type:'warn', text:'muy corta'};
+  else if (len >= 40) lengthTag = {type:'warn', text:'muy larga'};
+  else lengthTag = {type:'ok', text:'longitud adecuada'};
+
+  const kws = uniqueKeywords(step);
+  const hits = words.filter(w => kws.includes(w)).length;
+  const rel = Math.round( Math.min(100, (hits / Math.max(4, Math.min(10, kws.length))) * 100) );
+
+  let contextTag = null;
+  if (rel === 0) contextTag = {type:'bad', text:'fuera de contexto'};
+  else if (rel <= 25) contextTag = {type:'warn', text:'poco específico'};
+  else contextTag = {type:'ok', text:'en tema'};
+
+  return { rel, lengthTag, contextTag };
+}
+
+/* ==============================
+   LÓGICA DE FLUJO
+============================== */
+async function startScenario(idx){
+  state.scenarioIndex = idx;
+  state.stepIndex = 0;
+  state.history = [];
+  state.started = true;
+  $('#scroll').innerHTML = '';
+  const s = SCENARIOS[idx];
+  addMsg('bot', `✨ Escenario seleccionado: ${s.title}. ¡Comencemos!`);
+  await sleep(300);
+  renderBotStep(s.steps[state.stepIndex]);
+}
+
+function nextStep(){
+  const s = SCENARIOS[state.scenarioIndex];
+  if (state.stepIndex < s.steps.length - 1){
+    state.stepIndex++;
+    renderBotStep(s.steps[state.stepIndex]);
+  } else {
+    showSummary();
+  }
+}
+
+function repeatStep(){
+  const s = SCENARIOS[state.scenarioIndex];
+  renderBotStep(s.steps[state.stepIndex]);
+}
+
+function showSummary(){
+  const attempts = state.history.filter(h=>h.role==='user').length;
+  const avgRel = Math.round(state.history.filter(h=>h.rel!==undefined).reduce((a,b)=>a+b.rel,0) / Math.max(1, attempts));
+  const okCount = state.history.filter(h=>h.role==='user' && h.contextOk).length;
+
+  const txt = `✅ Escenario completado.
+• Intervenciones tuyas: ${attempts}
+• Relevancia media (estimada): ${isFinite(avgRel)?avgRel:0}%
+• Consejo: procura mantener frases de 3–25 palabras y usar palabras clave del contexto.`;
+
+  addMsg('bot', txt);
+}
+
+/* ==============================
+   RESPUESTA DEL USUARIO
+============================== */
+async function sendUser(){
+  const input = $('#input');
+  const text = (input.value || '').trim();
+  if (!text) return;
+  input.value = '';
+  const s = SCENARIOS[state.scenarioIndex];
+  const step = s.steps[state.stepIndex];
+
+  const ev = evaluateMessage(text, step);
+  const fb = [
+    {type: ev.lengthTag.type, text: ev.lengthTag.text},
+    {type: ev.contextTag.type, text: ev.contextTag.text},
+  ];
+  addMsg('user', text, fb);
+
+  state.history.push({role:'user', text, rel: ev.rel, contextOk: ev.contextTag.type==='ok'});
+
+  await sleep(250);
+  if (ev.contextTag.type === 'bad') {
+    addMsg('bot', `Creo que te fuiste un poco del tema. ${step.tip || 'Intenta usar palabras del contexto.'}`);
+    renderSuggestions(step);
+    return; // no avanzar
+  }
+
+  if (ev.lengthTag.type !== 'ok'){
+    addMsg('bot', `Gracias. Intenta una frase ${text.split(' ').length<=2 ? 'un poco más larga' : 'más breve'} la próxima vez.`);
+  } else if (ev.rel < 25){
+    addMsg('bot', 'Vas bien. ¿Podrías ser un poco más específico?');
+  } else {
+    addMsg('bot', '¡Perfecto! Continuemos…');
+  }
+
+  await sleep(250);
+  if (step.end){
+    addMsg('bot', 'Has practicado una despedida amable. Puedes finalizar o elegir otro escenario.');
+  }
+  nextStep();
+}
+
+/* ==============================
+   UI INIT
+============================== */
+function initSelectors(){
+  const sel = $('#scenario');
+  SCENARIOS.forEach((s, i)=>{
+    const opt = el('option', {value:i, textContent:`${i+1}. ${s.title}`});
+    sel.appendChild(opt);
+  });
+  sel.value = 0;
+}
+
+function attachEvents(){
+  $('#startBtn').addEventListener('click', ()=>{
+    startScenario(parseInt($('#scenario').value,10));
+  });
+  $('#resetBtn').addEventListener('click', ()=>{
+    if (!state.started) return;
+    startScenario(state.scenarioIndex);
+  });
+  $('#sendBtn').addEventListener('click', sendUser);
+  $('#input').addEventListener('keydown', (e)=>{
+    if (e.key==='Enter'){ e.preventDefault(); sendUser(); }
+  });
+  $('#hintBtn').addEventListener('click', ()=>{
+    const s = SCENARIOS[state.scenarioIndex];
+    const step = s.steps[state.stepIndex];
+    addMsg('bot', 'Pista: ' + (step.tip || 'Usa palabras clave del contexto.' ));
+  });
+  $('#repeatBtn').addEventListener('click', repeatStep);
+  $('#endBtn').addEventListener('click', showSummary);
+}
+
+/* ==============================
+   ARRANQUE
+============================== */
+initSelectors();
+attachEvents();
+addMsg('bot', '👋 Bienvenido al simulador (modo claro). Elige un escenario y toca “Iniciar”. Practica iniciar, mantener y cerrar conversaciones con retroalimentación en tiempo real.');
+if (TOTAL_STEPS < 100){
+  addMsg('bot', `Nota: se detectaron ${TOTAL_STEPS} pasos. (Mínimo recomendado: 100)`);
+}
+</script>
+</body>
+</html>
