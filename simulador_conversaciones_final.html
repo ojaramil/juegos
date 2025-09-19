@@ -472,6 +472,83 @@ const SCENARIOS = [
       {bot:'¿Algo más que cerrar?', opciones:['Nada más.','Solo confirmar asistentes.','Todo listo.'], keywords:['nada','asistentes','listo'], tip:'Checklist final.'},
       {bot:'¡Gracias! Hablamos luego.', opciones:['Gracias.','Hasta luego.','Nos vemos.'], keywords:['gracias','luego','vemos'], tip:'Cierre.', end:true}
     ]
+  },
+  {
+    id:'teatro',
+    title:'Teatro: comprar boletos',
+    steps:[
+      {bot:'¿Qué función te interesa?', opciones:['La de las 8 PM.','¿Qué tienen hoy?','Comedia musical.'], keywords:['función','8','comedia','musical'], tip:'Elige horario.'},
+      {bot:'¿Cuántas localidades?', opciones:['Dos.','Una.','¿Hay descuentos?'], keywords:['localidades','dos','una','descuentos'], tip:'Cantidad clara.'},
+      {bot:'¿Zona preferida?', opciones:['Palco.','Platea.','Cualquiera.'], keywords:['zona','palco','platea'], tip:'Elige ubicación.'},
+      {bot:'Te envío el QR.', opciones:['Perfecto.','¿También por email?','Lo guardo en el móvil.'], keywords:['qr','email','móvil','perfecto'], tip:'Confirma entrega.'},
+      {bot:'La sala abre 15 min antes.', opciones:['Llegaré temprano.','Gracias por avisar.','Lo tendré en cuenta.'], keywords:['sala','antes','aviso','temprano'], tip:'Planifica llegada.'},
+      {bot:'¿Necesitas factura?', opciones:['Sí, NIT.','No.','Después.'], keywords:['factura','nit','no','después'], tip:'Documento de compra.'},
+      {bot:'Disfruta la función.', opciones:['Gracias.','Hasta luego.','Nos vemos.'], keywords:['gracias','luego','vemos'], tip:'Cierre.', end:true}
+    ]
+  },
+  {
+    id:'aeropuerto_nuevo',
+    title:'Aeropuerto: check-in y embarque',
+    steps:[
+      {bot:'¿Vuelo nacional o internacional?', opciones:['Nacional.','Internacional.','Conexión.'], keywords:['vuelo','nacional','internacional','conexión'], tip:'Selecciona tipo.'},
+      {bot:'¿Tienes equipaje para despachar?', opciones:['Sí, una maleta.','Solo de mano.','Aún no estoy seguro.'], keywords:['equipaje','despachar','mano','maleta'], tip:'Declara equipaje.'},
+      {bot:'¿Prefieres asiento pasillo o ventana?', opciones:['Ventana.','Pasillo.','Cualquiera.'], keywords:['asiento','pasillo','ventana'], tip:'Elige comodidad.'},
+      {bot:'Necesito tu documento.', opciones:['Aquí está.','Digital en la app.','¿Sirve pasaporte?'], keywords:['documento','app','pasaporte'], tip:'Entrega identificación.'},
+      {bot:'El embarque es a las 14:20.', opciones:['Perfecto, estaré allí.','¿Puerta?','¿Retrasos?'], keywords:['embarque','puerta','retrasos','14:20'], tip:'Verifica hora.'},
+      {bot:'Líquidos máximo 100 ml.', opciones:['Entendido.','¿Y medicamentos?','Tengo bolsa transparente.'], keywords:['líquidos','100','medicamentos','bolsa'], tip:'Cumple seguridad.'},
+      {bot:'¿Necesitas asistencia especial?', opciones:['No, gracias.','Silla de ruedas.','Embarque prioritario.'], keywords:['asistencia','silla','prioritario','gracias'], tip:'Solicita apoyo si aplica.'},
+      {bot:'¿Deseas hacer upgrade?', opciones:['No por ahora.','¿Costo?','Si hay oferta.'], keywords:['upgrade','costo','oferta'], tip:'Evalúa beneficio.'},
+      {bot:'¿Seguro de viaje?', opciones:['Sí, básico.','No.','Ya tengo.'], keywords:['seguro','viaje','básico','no'], tip:'Decide cobertura.'},
+      {bot:'Buen viaje.', opciones:['Gracias.','Hasta luego.','Nos vemos.'], keywords:['gracias','luego','vemos'], tip:'Cierre.', end:true}
+    ]
+  },
+  {
+    id:'hotel_nuevo',
+    title:'Hotel: check‑in y solicitudes',
+    steps:[
+      {bot:'Bienvenido, ¿tienes reserva?', opciones:['Sí, a nombre de Ruiz.','No, ¿hay disponibilidad?','Reservé por app.'], keywords:['reserva','disponibilidad','app','nombre'], tip:'Indica tu reserva.'},
+      {bot:'¿Cuántas noches te quedas?', opciones:['Dos noches.','Solo una.','Tres, por favor.'], keywords:['noches','una','dos','tres'], tip:'Duración clara.'},
+      {bot:'¿Prefieres cama doble o dos individuales?', opciones:['Cama doble.','Dos individuales.','Cualquiera.'], keywords:['cama','doble','individuales'], tip:'Elige tipo de cama.'},
+      {bot:'¿Incluimos desayuno?', opciones:['Sí, por favor.','No, gracias.','Solo mañana.'], keywords:['desayuno','sí','no','mañana'], tip:'Añade servicios.'},
+      {bot:'¿Hora estimada de salida?', opciones:['11 am.','Podría ser tarde.','Aún no sé.'], keywords:['salida','11','tarde'], tip:'Comparte tu plan.'},
+      {bot:'¿Necesitas estacionamiento?', opciones:['Sí, un lugar.','No uso auto.','Solo por la noche.'], keywords:['estacionamiento','auto','noche'], tip:'Servicios extra.'},
+      {bot:'¿Alguna solicitud especial?', opciones:['Habitación tranquila.','Almohada extra.','Piso bajo.'], keywords:['tranquila','almohada','piso','solicitud'], tip:'Preferencias simples.'},
+      {bot:'Depósito reembolsable requerido.', opciones:['Entendido.','¿Monto?','Pago con tarjeta.'], keywords:['depósito','reembolsable','monto','tarjeta'], tip:'Asegura método.'},
+      {bot:'El Wi‑Fi es "HotelGuest".', opciones:['Gracias.','¿Contraseña?','Perfecto.'], keywords:['wifi','contraseña','gracias','perfecto'], tip:'Conéctate fácil.'},
+      {bot:'Disfruta tu estancia.', opciones:['Gracias.','Hasta luego.','Muy amable.'], keywords:['gracias','luego','amable'], tip:'Cierre.', end:true}
+    ]
+  },
+  {
+    id:'ropa_nuevo',
+    title:'Tienda de ropa: probadores y tallas',
+    steps:[
+      {bot:'¿Buscas algo en especial?', opciones:['Una chaqueta.','Pantalón negro.','Camisa formal.'], keywords:['chaqueta','pantalón','camisa','ropa'], tip:'Di prenda y color.'},
+      {bot:'¿Qué talla usas?', opciones:['M.','L.','No estoy seguro.'], keywords:['talla','m','l','seguro'], tip:'Da una referencia.'},
+      {bot:'¿Prefieres corte slim o regular?', opciones:['Slim.','Regular.','Lo que recomiendes.'], keywords:['corte','slim','regular','recomiendes'], tip:'Elige ajuste.'},
+      {bot:'Los probadores están al fondo.', opciones:['Gracias.','¿Hay espejo grande?','¿Límite de prendas?'], keywords:['probadores','fondo','espejo','prendas'], tip:'Organiza la prueba.'},
+      {bot:'¿Necesitas otra talla?', opciones:['Una más grande.','Una más pequeña.','Esta está bien.'], keywords:['talla','grande','pequeña','bien'], tip:'Ajusta selección.'},
+      {bot:'¿Cómo te queda el color?', opciones:['Me gusta.','Prefiero azul.','Muy claro.'], keywords:['color','azul','claro','gusta'], tip:'Da opinión breve.'},
+      {bot:'Tenemos 20% de descuento.', opciones:['Interesante.','¿Hasta cuándo?','¿Incluye esta prenda?'], keywords:['descuento','20','cuándo','incluye'], tip:'Evalúa oferta.'},
+      {bot:'¿Pago en caja o por app?', opciones:['Caja.','App.','Autopago.'], keywords:['pago','caja','app','autopago'], tip:'Elige canal.'},
+      {bot:'¿Deseas bolsa?', opciones:['No, traje.','Sí, por favor.','Bolsa reutilizable.'], keywords:['bolsa','reutilizable','traje'], tip:'Selecciona empaque.'},
+      {bot:'Gracias por tu compra.', opciones:['Gracias.','Hasta luego.','Excelente atención.'], keywords:['gracias','luego','atención'], tip:'Cierre.', end:true}
+    ]
+  },
+  {
+    id:'voluntariado',
+    title:'Voluntariado: primera reunión',
+    steps:[
+      {bot:'Bienvenido al equipo, ¿qué te motiva?', opciones:['Ayudar a la comunidad.','Aprender habilidades.','Conocer gente.'], keywords:['comunidad','aprender','conocer','motiva'], tip:'Comparte tu motivo.'},
+      {bot:'¿Qué tareas prefieres?', opciones:['Logística.','Comunicación.','Recolección de donaciones.'], keywords:['logística','comunicación','donaciones','tareas'], tip:'Elige un rol.'},
+      {bot:'¿Disponibilidad semanal?', opciones:['Sábados.','Entre semana.','Horas flexibles.'], keywords:['disponibilidad','sábados','flexibles','semana'], tip:'Sé concreto.'},
+      {bot:'¿Tienes experiencia previa?', opciones:['Un proyecto escolar.','Voluntariado anterior.','Ninguna.'], keywords:['experiencia','proyecto','anterior','ninguna'], tip:'Cualquier experiencia ayuda.'},
+      {bot:'Necesitamos firmar un acuerdo.', opciones:['De acuerdo.','¿Puedo leerlo?','Lo firmo luego.'], keywords:['acuerdo','firmar','leer','luego'], tip:'Confirma el proceso.'},
+      {bot:'Capacitación el jueves.', opciones:['Asisto.','No puedo, otra fecha.','¿Horario?'], keywords:['capacitación','jueves','horario'], tip:'Ajusta agenda.'},
+      {bot:'¿Te asigno un mentor?', opciones:['Sí, por favor.','No es necesario.','Tal vez después.'], keywords:['mentor','asignar','después'], tip:'Pide apoyo.'},
+      {bot:'Canal de comunicación principal.', opciones:['WhatsApp.','Email.','Slack.'], keywords:['canal','whatsapp','email','slack'], tip:'Elige canal.'},
+      {bot:'¿Alguna pregunta?', opciones:['¿Código de vestimenta?','¿Puntos de encuentro?','No por ahora.'], keywords:['pregunta','vestimenta','encuentro'], tip:'Resuelve dudas.'},
+      {bot:'Gracias por unirte.', opciones:['Gracias.','Con gusto.','Hasta pronto.'], keywords:['gracias','gusto','pronto'], tip:'Cierre.', end:true}
+    ]
   }
 ];
 
